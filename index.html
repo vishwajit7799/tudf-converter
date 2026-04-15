@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TUDF Converter — Bureau Submission Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e2e0d8;
+    --border-strong: #c8c6bc;
+    --text: #1a1916;
+    --text-2: #6b6860;
+    --text-3: #9c9a92;
+    --accent: #1a3a2a;
+    --accent-light: #e8f2ec;
+    --accent-border: #7ab893;
+    --danger: #8b2020;
+    --danger-bg: #fdf0f0;
+    --danger-border: #e8a0a0;
+    --warn: #7a5200;
+    --warn-bg: #fdf8ee;
+    --warn-border: #e8d090;
+    --success: #1a4a2e;
+    --success-bg: #edf7f1;
+    --success-border: #80c8a0;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  .header { background: var(--accent); color: #fff; padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: #c8e8d8; }
+  .header-title { font-size: 17px; font-weight: 500; letter-spacing: -0.3px; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+  .header-badges { margin-left: auto; display: flex; gap: 8px; }
+  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+
+  .main { max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+  .step { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 13px; color: var(--text-3); cursor: default; transition: all 0.2s; }
+  .step.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .step.done { color: var(--text-2); }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step.done .step-num { background: var(--border); border-color: var(--border); }
+  .step-arrow { color: var(--border-strong); font-size: 12px; padding: 0 4px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
+
+  .bureau-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .bureau-btn { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; }
+  .bureau-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
+  .bureau-btn.selected { border-color: var(--accent); background: var(--accent-light); }
+  .bureau-btn .bname { font-size: 14px; font-weight: 500; color: var(--text); }
+  .bureau-btn .bcode { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .bureau-btn .bcheck { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-strong); float: right; margin-top: 2px; transition: all 0.15s; }
+  .bureau-btn.selected .bcheck { background: var(--accent); border-color: var(--accent); }
+
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .type-btn { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; }
+  .type-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
+  .type-btn.selected { border-color: var(--accent); background: var(--accent-light); }
+  .type-btn .tname { font-size: 14px; font-weight: 500; }
+  .type-btn .tdesc { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
+  .upload-icon { font-size: 28px; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; color: var(--text-2); }
+  .upload-hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+  #file-input { display: none; }
+
+  .file-loaded { background: var(--success-bg); border: 1px solid var(--success-border); border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--success); }
+  .file-loaded .fname { font-weight: 500; font-family: var(--mono); }
+  .file-loaded .fstats { color: var(--text-3); font-size: 12px; }
+
+  .mapping-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .mapping-table th { text-align: left; padding: 8px 12px; background: var(--surface2); color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .mapping-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .mapping-table tr:last-child td { border-bottom: none; }
+  .field-label { font-weight: 500; color: var(--text); }
+  .field-req { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 6px; font-weight: 500; }
+  .req-required { background: #fee8e8; color: #991a1a; }
+  .req-optional { background: var(--surface2); color: var(--text-3); }
+  .field-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+  .mapping-table select { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--sans); background: var(--surface); color: var(--text); }
+  .mapping-table select:focus { outline: none; border-color: var(--accent); }
+
+  .section-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .sec-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); transition: all 0.15s; }
+  .sec-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .errors-list { margin-top: 12px; }
+  .error-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius); margin-bottom: 6px; font-size: 12px; color: var(--danger); }
+  .warn-item { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
+
+  .output-box { background: #1a1916; border-radius: var(--radius); padding: 16px; font-family: var(--mono); font-size: 11px; color: #c8c6bc; line-height: 1.7; max-height: 280px; overflow-y: auto; white-space: pre; }
+
+  .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn { padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid; transition: all 0.15s; font-family: var(--sans); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #0f2a1c; }
+  .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .stats-bar { display: flex; gap: 20px; padding: 12px 16px; background: var(--surface2); border-radius: var(--radius); font-size: 12px; color: var(--text-2); }
+  .stat-item strong { color: var(--text); font-weight: 600; }
+  .stat-sep { color: var(--border-strong); }
+
+  .hidden { display: none !important; }
+  .info-box { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--accent); margin-bottom: 16px; }
+  .info-box strong { font-weight: 600; }
+
+  .sample-link { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 28px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+
+  table.preview { width: 100%; font-size: 12px; border-collapse: collapse; }
+  table.preview th { background: var(--surface2); padding: 6px 10px; text-align: left; color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; }
+  table.preview td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--text); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  table.preview tr:last-child td { border-bottom: none; }
+  .preview-wrap { max-height: 180px; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+
+  .member-id-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-group label { font-size: 12px; color: var(--text-2); font-weight: 500; }
+  .field-group input { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: var(--mono); background: var(--surface); color: var(--text); width: 220px; }
+  .field-group input:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">TU<br>DF</div>
+  <div>
+    <div class="header-title">TUDF / UCRF Converter</div>
+    <div class="header-sub">Excel → Bureau submission file generator</div>
+  </div>
+  <div class="header-badges">
+    <span class="badge">TransUnion CIBIL</span>
+    <span class="badge">CRIF High Mark</span>
+    <span class="badge">Equifax</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:14%"></div></div>
+
+  <div class="steps">
+    <div class="step active" id="st-1"><span class="step-num">1</span> Configure</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="st-2"><span class="step-num">2</span> Upload</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="st-3"><span class="step-num">3</span> Map fields</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="st-4"><span class="step-num">4</span> Validate</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="st-5"><span class="step-num">5</span> Generate</div>
+  </div>
+
+  <!-- STEP 1: Configure -->
+  <div id="panel-1">
+    <div class="card">
+      <div class="card-title">Select bureau</div>
+      <div class="bureau-grid">
+        <button class="bureau-btn selected" onclick="selectBureau('cibil',this)">
+          <span class="bcheck"></span>
+          <div class="bname">TransUnion CIBIL</div>
+          <div class="bcode">UCRF v3.73</div>
+        </button>
+        <button class="bureau-btn" onclick="selectBureau('crif',this)">
+          <span class="bcheck"></span>
+          <div class="bname">CRIF High Mark</div>
+          <div class="bcode">UCRF v3.73</div>
+        </button>
+        <button class="bureau-btn" onclick="selectBureau('equifax',this)">
+          <span class="bcheck"></span>
+          <div class="bname">Equifax</div>
+          <div class="bcode">UCRF v3.73</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Report type</div>
+      <div class="type-grid">
+        <button class="type-btn selected" onclick="selectType('consumer',this)">
+          <div class="tname">Consumer</div>
+          <div class="tdesc">Individual borrowers — retail, personal, home, auto loans</div>
+        </button>
+        <button class="type-btn" onclick="selectType('commercial',this)">
+          <div class="tname">Commercial</div>
+          <div class="tdesc">Business entities — MSME, corporate, business loans</div>
+        </button>
+      </div>
+
+      <div class="member-id-row">
+        <div class="field-group">
+          <label>Member ID (assigned by bureau)</label>
+          <input type="text" id="member-id" placeholder="e.g. MBR000123" />
+        </div>
+        <div class="field-group">
+          <label>Reporting password</label>
+          <input type="password" id="report-pwd" placeholder="Bureau-issued password" />
+        </div>
+        <div class="field-group">
+          <label>Date reported (DDMMYYYY)</label>
+          <input type="text" id="report-date" placeholder="e.g. 15042026" maxlength="8" />
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="goStep(2)">Continue to upload →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Upload -->
+  <div id="panel-2" class="hidden">
+    <div class="card">
+      <div class="card-title">Upload Excel file</div>
+      <div class="info-box">
+        <strong>Format:</strong> .xlsx or .xls — one row per borrower account. Headers must be in row 1.
+        No sample file? <span class="sample-link" onclick="downloadSample()">Download sample template</span>
+      </div>
+      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="upload-icon">📂</div>
+        <div class="upload-text">Click to browse or drag & drop your Excel file here</div>
+        <div class="upload-hint">.xlsx / .xls supported · Max 50,000 rows</div>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadFile(this.files[0])">
+      <div id="file-loaded-info" class="hidden" style="margin-top:12px;"></div>
+      <div id="preview-section" class="hidden" style="margin-top:16px;">
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:500;">Preview (first 5 rows)</div>
+        <div class="preview-wrap"><table class="preview" id="preview-table"></table></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" id="btn-step3" disabled onclick="goStep(3)">Map fields →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Map fields -->
+  <div id="panel-3" class="hidden">
+    <div class="card">
+      <div class="card-title">Map Excel columns to TUDF segments</div>
+      <div class="section-tabs" id="seg-tabs"></div>
+      <div id="mapping-body"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Validate →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Validate -->
+  <div id="panel-4" class="hidden">
+    <div class="card">
+      <div class="card-title">Validation results</div>
+      <div id="validation-output"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-primary" id="btn-generate" onclick="goStep(5)">Generate TUDF file →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Generate -->
+  <div id="panel-5" class="hidden">
+    <div class="card">
+      <div class="card-title">Generated TUDF file</div>
+      <div id="stats-bar-area" style="margin-bottom:14px;"></div>
+      <div class="output-box" id="output-preview"></div>
+      <div style="margin-top:12px; font-size:12px; color:var(--text-3);">Showing first 30 lines — full file will be downloaded</div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-download" onclick="downloadTUDF()">⬇ Download .txt file</button>
+      <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+      <button class="btn btn-secondary" onclick="resetAll()">Start over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedBureau = 'cibil';
+let selectedType = 'consumer';
+let excelData = [];
+let headers = [];
+let mappings = {};
+let tudfOutput = '';
+let currentSeg = 'header';
+
+const SEGMENTS_CONSUMER = [
+  { id: 'header', label: 'Header (TUDF)', fields: [] },
+  { id: 'pn', label: 'Name (PN)', fields: [
+    { tag: '01', name: 'consumer_name_1', label: 'Consumer name (field 1)', required: true, desc: 'First 26 chars of borrower name' },
+    { tag: '07', name: 'date_of_birth', label: 'Date of birth', required: false, desc: 'DDMMYYYY' },
+    { tag: '08', name: 'gender', label: 'Gender', required: false, desc: '1=Female, 2=Male' },
+  ]},
+  { id: 'id', label: 'ID (ID)', fields: [
+    { tag: '01', name: 'id_type', label: 'ID type', required: false, desc: '01=PAN, 02=Passport, 03=Voter ID, 04=DL, 08=Aadhaar' },
+    { tag: '02', name: 'id_number', label: 'ID number', required: false, desc: 'Document number' },
+  ]},
+  { id: 'pt', label: 'Telephone (PT)', fields: [
+    { tag: '01', name: 'tel_number', label: 'Telephone number', required: false, desc: '10-digit mobile/phone' },
+    { tag: '03', name: 'tel_type', label: 'Telephone type', required: false, desc: '01=Mobile, 02=Home, 03=Office' },
+  ]},
+  { id: 'pa', label: 'Address (PA)', fields: [
+    { tag: '01', name: 'addr_line1', label: 'Address line 1', required: true, desc: 'Street / flat / building' },
+    { tag: '02', name: 'addr_line2', label: 'Address line 2', required: false, desc: 'Area / locality' },
+    { tag: '03', name: 'addr_line3', label: 'Address line 3', required: false, desc: 'City name' },
+    { tag: '04', name: 'addr_line4', label: 'Address line 4', required: false, desc: 'State name' },
+    { tag: '05', name: 'addr_line5', label: 'Address line 5', required: false, desc: 'Country code (IN)' },
+    { tag: '06', name: 'pincode', label: 'Pin code', required: true, desc: '6-digit PIN' },
+    { tag: '07', name: 'addr_category', label: 'Address category', required: false, desc: '01=Permanent, 02=Residence, 03=Office, 04=Not categorised' },
+  ]},
+  { id: 'tl', label: 'Account (TL)', fields: [
+    { tag: '01', name: 'acct_number', label: 'Account number', required: true, desc: 'Unique loan/account ID' },
+    { tag: '02', name: 'portfolio_type', label: 'Portfolio type', required: true, desc: 'AL=Auto Loan, HL=Home Loan, PL=Personal Loan, CC=Credit Card, GL=Gold Loan, etc.' },
+    { tag: '03', name: 'acct_type', label: 'Account type', required: true, desc: '10=Loan, 00=Credit Card' },
+    { tag: '04', name: 'ownership_indicator', label: 'Ownership indicator', required: true, desc: '1=Individual, 2=Authorised user, 3=Guarantor, 4=Joint' },
+    { tag: '05', name: 'date_opened', label: 'Date opened / disbursed', required: true, desc: 'DDMMYYYY' },
+    { tag: '06', name: 'date_last_payment', label: 'Date of last payment', required: false, desc: 'DDMMYYYY' },
+    { tag: '07', name: 'date_closed', label: 'Date closed', required: false, desc: 'DDMMYYYY — only for closed accounts' },
+    { tag: '08', name: 'date_reported', label: 'Date reported & certified', required: true, desc: 'DDMMYYYY' },
+    { tag: '09', name: 'high_credit', label: 'High credit / sanctioned amount', required: true, desc: 'Amount in INR (whole number)' },
+    { tag: '10', name: 'current_balance', label: 'Current balance', required: true, desc: 'Amount in INR' },
+    { tag: '11', name: 'amount_overdue', label: 'Amount overdue', required: false, desc: 'Amount in INR (0 if no overdues)' },
+    { tag: '12', name: 'dpd', label: 'DPD (Days past due)', required: false, desc: 'Number of days overdue (e.g. 000, 030)' },
+    { tag: '13', name: 'asset_classification', label: 'Asset classification', required: false, desc: '01=Standard, 02=Sub-standard, 03=Doubtful, 04=Loss' },
+    { tag: '14', name: 'payment_rating', label: 'Payment rating', required: false, desc: '0=New, 1=1-30 DPD, 2=31-60, 3=61-90, 4=91-120, 5=121-150, 6=151-180, 7=180+, 8=Suit Filed, 9=Written Off' },
+    { tag: '15', name: 'credit_limit', label: 'Credit limit', required: false, desc: 'For credit cards — sanctioned limit in INR' },
+    { tag: '16', name: 'cash_limit', label: 'Cash limit', required: false, desc: 'For credit cards — cash limit in INR' },
+    { tag: '17', name: 'emi_amount', label: 'EMI amount', required: false, desc: 'Monthly EMI in INR' },
+    { tag: '18', name: 'written_off_amt', label: 'Written off amount (total)', required: false, desc: 'Total written off amount in INR' },
+    { tag: '19', name: 'written_off_settled', label: 'Written off amount (settled)', required: false, desc: 'Settled amount in INR' },
+    { tag: '20', name: 'tenure', label: 'Tenure (months)', required: false, desc: 'Loan tenure in months' },
+    { tag: '21', name: 'interest_rate', label: 'Interest rate', required: false, desc: 'Annual rate as percentage' },
+    { tag: '22', name: 'repayment_tenure', label: 'Repayment tenure', required: false, desc: 'Original repayment period in months' },
+    { tag: '23', name: 'occupation_code', label: 'Occupation code', required: false, desc: '01=Salaried, 02=Self-Employed Professional, 03=Self-Employed Non-Professional, 04=Others' },
+    { tag: '24', name: 'income', label: 'Income', required: false, desc: 'Annual income in INR' },
+    { tag: '25', name: 'net_or_gross', label: 'Net/Gross income indicator', required: false, desc: '1=Net, 2=Gross' },
+    { tag: '26', name: 'monthly_income', label: 'Monthly income', required: false, desc: 'Monthly income in INR' },
+  ]},
+];
+
+const SEGMENTS_COMMERCIAL = [
+  { id: 'header', label: 'Header (TUDF)', fields: [] },
+  { id: 'cn', label: 'Company Name (CN)', fields: [
+    { tag: '01', name: 'company_name', label: 'Company / entity name', required: true, desc: 'Legal name of borrowing entity' },
+    { tag: '02', name: 'short_name', label: 'Short name', required: false, desc: 'Abbreviated name' },
+    { tag: '03', name: 'category', label: 'Business category', required: false, desc: '01=Private Ltd, 02=Public Ltd, 03=Partnership, 04=Proprietorship, 05=Others' },
+  ]},
+  { id: 'id', label: 'ID (ID)', fields: [
+    { tag: '01', name: 'id_type', label: 'ID type', required: false, desc: '01=CIN, 02=PAN, 03=GSTIN, 04=TAN' },
+    { tag: '02', name: 'id_number', label: 'ID number', required: false, desc: 'Registration / PAN / GSTIN number' },
+  ]},
+  { id: 'pa', label: 'Address (PA)', fields: [
+    { tag: '01', name: 'addr_line1', label: 'Address line 1', required: true, desc: 'Registered office address' },
+    { tag: '03', name: 'addr_line3', label: 'City', required: false, desc: '' },
+    { tag: '04', name: 'addr_line4', label: 'State', required: false, desc: '' },
+    { tag: '06', name: 'pincode', label: 'Pin code', required: true, desc: '6-digit PIN' },
+  ]},
+  { id: 'tl', label: 'Account (TL)', fields: [
+    { tag: '01', name: 'acct_number', label: 'Account number', required: true, desc: 'Loan / facility ID' },
+    { tag: '02', name: 'portfolio_type', label: 'Portfolio type', required: true, desc: 'TL=Term Loan, CC=Cash Credit, OD=Overdraft, LC=Letter of Credit, BG=Bank Guarantee' },
+    { tag: '04', name: 'ownership_indicator', label: 'Ownership indicator', required: true, desc: '1=Individual, 4=Joint, 5=Primary borrower' },
+    { tag: '05', name: 'date_opened', label: 'Date opened', required: true, desc: 'DDMMYYYY' },
+    { tag: '08', name: 'date_reported', label: 'Date reported', required: true, desc: 'DDMMYYYY' },
+    { tag: '09', name: 'high_credit', label: 'Sanctioned amount', required: true, desc: 'Amount in INR' },
+    { tag: '10', name: 'current_balance', label: 'Current balance outstanding', required: true, desc: 'Amount in INR' },
+    { tag: '11', name: 'amount_overdue', label: 'Amount overdue', required: false, desc: 'Amount in INR' },
+    { tag: '12', name: 'dpd', label: 'DPD', required: false, desc: 'Days past due (000 if current)' },
+    { tag: '13', name: 'asset_classification', label: 'Asset classification', required: false, desc: '01=Standard, 02=Sub-standard, 03=Doubtful, 04=Loss' },
+  ]},
+];
+
+function getSegments() { return selectedType === 'consumer' ? SEGMENTS_CONSUMER : SEGMENTS_COMMERCIAL; }
+
+function selectBureau(b, el) {
+  selectedBureau = b;
+  document.querySelectorAll('.bureau-btn').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectType(t, el) {
+  selectedType = t;
+  document.querySelectorAll('.type-btn').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function goStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('panel-' + i).classList.toggle('hidden', i !== n);
+    const st = document.getElementById('st-' + i);
+    st.classList.remove('active', 'done');
+    if (i === n) st.classList.add('active');
+    else if (i < n) st.classList.add('done');
+  }
+  document.getElementById('progress').style.width = (n * 20 - 6) + '%';
+  if (n === 3) buildMappingUI();
+  if (n === 4) runValidation();
+  if (n === 5) generateTUDF();
+}
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
+function onDragLeave(e) { document.getElementById('drop-zone').classList.remove('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+}
+
+function loadFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const wb = XLSX.read(e.target.result, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (raw.length < 2) { alert('File appears empty or has no data rows.'); return; }
+    headers = (raw[0] || []).map(h => String(h).trim());
+    excelData = raw.slice(1).filter(r => r.some(c => c !== ''));
+
+    const info = document.getElementById('file-loaded-info');
+    info.innerHTML = `<div class="file-loaded"><span>✓</span><span><span class="fname">${file.name}</span><br><span class="fstats">${excelData.length.toLocaleString()} data rows · ${headers.length} columns · Sheet: ${wb.SheetNames[0]}</span></span></div>`;
+    info.classList.remove('hidden');
+
+    buildPreview(raw.slice(0, 6));
+    document.getElementById('preview-section').classList.remove('hidden');
+    document.getElementById('btn-step3').disabled = false;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function buildPreview(rows) {
+  const t = document.getElementById('preview-table');
+  const hdr = rows[0] || [];
+  let html = '<thead><tr>' + hdr.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+  rows.slice(1).forEach(r => { html += '<tr>' + hdr.map((_,i) => `<td>${r[i] !== undefined ? r[i] : ''}</td>`).join('') + '</tr>'; });
+  html += '</tbody>';
+  t.innerHTML = html;
+}
+
+function buildMappingUI() {
+  const segs = getSegments().filter(s => s.id !== 'header');
+  const tabs = document.getElementById('seg-tabs');
+  tabs.innerHTML = '';
+  segs.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'sec-tab' + (i === 0 ? ' active' : '');
+    b.textContent = s.label;
+    b.onclick = () => { currentSeg = s.id; document.querySelectorAll('.sec-tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); renderMappingTable(s); };
+    tabs.appendChild(b);
+  });
+  renderMappingTable(segs[0]);
+}
+
+function renderMappingTable(seg) {
+  const body = document.getElementById('mapping-body');
+  const opts = ['-- unmapped --', ...headers];
+  let html = `<table class="mapping-table"><thead><tr><th>TUDF field</th><th>Segment tag</th><th>Map to Excel column</th></tr></thead><tbody>`;
+  seg.fields.forEach(f => {
+    const saved = mappings[f.name] || '';
+    const reqClass = f.required ? 'req-required' : 'req-optional';
+    const reqLabel = f.required ? 'required' : 'optional';
+    const autoMatch = headers.find(h => h.toLowerCase().replace(/[\s_-]/g,'').includes(f.name.replace(/_/g,'')) || f.name.replace(/_/g,'').includes(h.toLowerCase().replace(/[\s_-]/g,'')));
+    const selectedVal = saved || autoMatch || '';
+    html += `<td><div class="field-label">${f.label}<span class="field-req ${reqClass}">${reqLabel}</span></div><div class="field-desc">${f.desc}</div></td>`;
+    html += `<td><code style="font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px;">${seg.id.toUpperCase()} • ${f.tag}</code></td>`;
+    html += `<td><select onchange="mappings['${f.name}']=this.value" data-field="${f.name}">`;
+    opts.forEach(o => { html += `<option value="${o === '-- unmapped --' ? '' : o}"${o === selectedVal || (selectedVal && o === selectedVal) ? ' selected' : ''}>${o}</option>`; });
+    html += `</select></td></tr>`;
+    if (selectedVal) mappings[f.name] = selectedVal;
+  });
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
+function getVal(row, fieldName) {
+  const col = mappings[fieldName];
+  if (!col) return '';
+  const idx = headers.indexOf(col);
+  if (idx === -1) return '';
+  return String(row[idx] !== undefined && row[idx] !== null ? row[idx] : '').trim();
+}
+
+function runValidation() {
+  const segs = getSegments().filter(s => s.id !== 'header');
+  const allRequired = [];
+  segs.forEach(s => s.fields.filter(f => f.required).forEach(f => allRequired.push({ seg: s.id.toUpperCase(), ...f })));
+
+  let errors = [], warns = [];
+  allRequired.forEach(f => { if (!mappings[f.name]) errors.push(`${f.seg} segment: "${f.label}" is required but not mapped.`); });
+
+  let validRows = 0, invalidRows = 0;
+  excelData.forEach((row, i) => {
+    let rowOk = true;
+    allRequired.forEach(f => { if (mappings[f.name]) { const v = getVal(row, f.name); if (!v) { rowOk = false; if (errors.length < 8) errors.push(`Row ${i+2}: "${f.label}" (${f.seg}) is empty.`); } } });
+    if (rowOk) validRows++; else invalidRows++;
+  });
+
+  if (mappings['date_of_birth'] || mappings['date_opened'] || mappings['date_reported']) {
+    const sampleDate = excelData[0] ? getVal(excelData[0], 'date_opened') || getVal(excelData[0], 'date_reported') : '';
+    if (sampleDate && !/^\d{8}$/.test(String(sampleDate).replace(/\D/g,''))) {
+      warns.push(`Date fields should be in DDMMYYYY (8-digit) format. Detected value: "${sampleDate}" — converter will attempt auto-reformat.`);
+    }
+  }
+
+  const out = document.getElementById('validation-output');
+  let html = `<div class="stats-bar"><span><strong>${excelData.length}</strong> total records</span><span class="stat-sep">·</span><span style="color:var(--success)"><strong>${validRows}</strong> valid rows</span>`;
+  if (invalidRows) html += `<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>${invalidRows}</strong> rows with issues</span>`;
+  html += `</div>`;
+
+  if (errors.length) {
+    html += '<div class="errors-list">';
+    errors.slice(0,10).forEach(e => { html += `<div class="error-item">✕ ${e}</div>`; });
+    if (errors.length > 10) html += `<div class="error-item">... and ${errors.length - 10} more errors.</div>`;
+    html += '</div>';
+    document.getElementById('btn-generate').textContent = errors.length > allRequired.length ? 'Generate anyway (with errors) →' : 'Generate TUDF file →';
+  }
+  if (warns.length) {
+    html += '<div class="errors-list">';
+    warns.forEach(w => { html += `<div class="error-item warn-item">⚠ ${w}</div>`; });
+    html += '</div>';
+  }
+  if (!errors.length && !warns.length) {
+    html += `<div style="padding:16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);color:var(--success);font-size:14px;">✓ All required fields mapped and validated. Ready to generate.</div>`;
+  }
+  out.innerHTML = html;
+}
+
+function padFixed(val, len, padChar) { return String(val || '').padEnd(len, padChar || ' ').substring(0, len); }
+function formatDate(val) {
+  if (!val) return '';
+  const s = String(val).replace(/\D/g, '');
+  if (s.length === 8) return s;
+  if (s.length === 5) {
+    const d = new Date(Math.round((parseInt(s) - 25569) * 86400 * 1000));
+    const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0'), yyyy = d.getFullYear();
+    return `${dd}${mm}${yyyy}`;
+  }
+  return s.substring(0,8).padEnd(8,'0');
+}
+function varField(tag, val, maxLen) {
+  if (!val) return '';
+  const v = String(val).substring(0, maxLen || 200);
+  const tagStr = String(tag).padStart(2,'0');
+  const lenStr = String(v.length).padStart(2,'0');
+  return tagStr + lenStr + v;
+}
+
+function buildTUDFRecord(row) {
+  const memberId = document.getElementById('member-id').value || 'MEMBER00';
+  const pwd = document.getElementById('report-pwd').value || 'PASSWORD';
+  const reportDate = document.getElementById('report-date').value || '15042026';
+  let rec = '';
+
+  if (selectedType === 'consumer') {
+    let pn = 'PN';
+    pn += varField('01', getVal(row, 'consumer_name_1').toUpperCase().substring(0,26), 26);
+    if (getVal(row, 'date_of_birth')) pn += varField('07', formatDate(getVal(row, 'date_of_birth')), 8);
+    if (getVal(row, 'gender')) pn += varField('08', getVal(row, 'gender'), 1);
+    const pnLen = String(pn.length - 2).padStart(2,'0');
+    rec += pn.substring(0,2) + pnLen + pn.substring(2) + '\n';
+
+    const idType = getVal(row, 'id_type'), idNum = getVal(row, 'id_number');
+    if (idType && idNum) {
+      let id = 'ID' + varField('01', idType, 2) + varField('02', idNum.toUpperCase(), 30);
+      const idLen = String(id.length - 2).padStart(2,'0');
+      rec += id.substring(0,2) + idLen + id.substring(2) + '\n';
+    }
+
+    const tel = getVal(row, 'tel_number');
+    if (tel) {
+      let pt = 'PT' + varField('01', String(tel).replace(/\D/g,'').substring(0,10), 10);
+      if (getVal(row, 'tel_type')) pt += varField('03', getVal(row,'tel_type'), 2);
+      const ptLen = String(pt.length - 2).padStart(2,'0');
+      rec += pt.substring(0,2) + ptLen + pt.substring(2) + '\n';
+    }
+
+    let pa = 'PA';
+    pa += varField('01', getVal(row, 'addr_line1').toUpperCase().substring(0,40), 40);
+    if (getVal(row,'addr_line2')) pa += varField('02', getVal(row,'addr_line2').toUpperCase().substring(0,40), 40);
+    if (getVal(row,'addr_line3')) pa += varField('03', getVal(row,'addr_line3').toUpperCase().substring(0,40), 40);
+    if (getVal(row,'addr_line4')) pa += varField('04', getVal(row,'addr_line4').toUpperCase().substring(0,40), 40);
+    pa += varField('05', getVal(row,'addr_line5') || 'IN', 2);
+    pa += varField('06', String(getVal(row,'pincode')).replace(/\D/g,'').substring(0,6), 6);
+    if (getVal(row,'addr_category')) pa += varField('07', getVal(row,'addr_category'), 2);
+    const paLen = String(pa.length - 2).padStart(2,'0');
+    rec += pa.substring(0,2) + paLen + pa.substring(2) + '\n';
+
+    let tl = 'TL';
+    tl += varField('01', getVal(row,'acct_number').toUpperCase().substring(0,25), 25);
+    tl += varField('02', getVal(row,'portfolio_type').toUpperCase().substring(0,2), 2);
+    tl += varField('03', getVal(row,'acct_type') || '10', 2);
+    tl += varField('04', getVal(row,'ownership_indicator') || '1', 1);
+    tl += varField('05', formatDate(getVal(row,'date_opened')), 8);
+    if (getVal(row,'date_last_payment')) tl += varField('06', formatDate(getVal(row,'date_last_payment')), 8);
+    if (getVal(row,'date_closed')) tl += varField('07', formatDate(getVal(row,'date_closed')), 8);
+    tl += varField('08', formatDate(getVal(row,'date_reported') || reportDate), 8);
+    tl += varField('09', String(getVal(row,'high_credit')).replace(/[^0-9]/g,''), 9);
+    tl += varField('10', String(getVal(row,'current_balance')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'amount_overdue')) tl += varField('11', String(getVal(row,'amount_overdue')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'dpd')) tl += varField('12', String(getVal(row,'dpd')).padStart(3,'0').substring(0,3), 3);
+    if (getVal(row,'asset_classification')) tl += varField('13', getVal(row,'asset_classification'), 2);
+    if (getVal(row,'payment_rating')) tl += varField('14', getVal(row,'payment_rating'), 1);
+    if (getVal(row,'credit_limit')) tl += varField('15', String(getVal(row,'credit_limit')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'emi_amount')) tl += varField('17', String(getVal(row,'emi_amount')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'written_off_amt')) tl += varField('18', String(getVal(row,'written_off_amt')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'tenure')) tl += varField('20', String(getVal(row,'tenure')).replace(/[^0-9]/g,'').substring(0,3), 3);
+    const tlLen = String(tl.length - 2).padStart(2,'0');
+    rec += tl.substring(0,2) + tlLen + tl.substring(2) + '\n';
+
+  } else {
+    let cn = 'CN';
+    cn += varField('01', getVal(row,'company_name').toUpperCase().substring(0,150), 150);
+    if (getVal(row,'short_name')) cn += varField('02', getVal(row,'short_name').toUpperCase().substring(0,30), 30);
+    if (getVal(row,'category')) cn += varField('03', getVal(row,'category'), 2);
+    const cnLen = String(cn.length - 2).padStart(2,'0');
+    rec += cn.substring(0,2) + cnLen + cn.substring(2) + '\n';
+
+    const idType = getVal(row,'id_type'), idNum = getVal(row,'id_number');
+    if (idType && idNum) {
+      let id = 'ID' + varField('01', idType, 2) + varField('02', idNum.toUpperCase(), 30);
+      const idLen = String(id.length - 2).padStart(2,'0');
+      rec += id.substring(0,2) + idLen + id.substring(2) + '\n';
+    }
+
+    let pa = 'PA' + varField('01', getVal(row,'addr_line1').toUpperCase().substring(0,40), 40);
+    if (getVal(row,'addr_line3')) pa += varField('03', getVal(row,'addr_line3').toUpperCase().substring(0,40), 40);
+    if (getVal(row,'addr_line4')) pa += varField('04', getVal(row,'addr_line4').toUpperCase().substring(0,40), 40);
+    pa += varField('05', 'IN', 2);
+    pa += varField('06', String(getVal(row,'pincode')).replace(/\D/g,'').substring(0,6), 6);
+    const paLen = String(pa.length - 2).padStart(2,'0');
+    rec += pa.substring(0,2) + paLen + pa.substring(2) + '\n';
+
+    let tl = 'TL';
+    tl += varField('01', getVal(row,'acct_number').toUpperCase().substring(0,25), 25);
+    tl += varField('02', getVal(row,'portfolio_type').toUpperCase().substring(0,2), 2);
+    tl += varField('04', getVal(row,'ownership_indicator') || '1', 1);
+    tl += varField('05', formatDate(getVal(row,'date_opened')), 8);
+    const reportDate2 = document.getElementById('report-date').value || '15042026';
+    tl += varField('08', formatDate(getVal(row,'date_reported') || reportDate2), 8);
+    tl += varField('09', String(getVal(row,'high_credit')).replace(/[^0-9]/g,''), 9);
+    tl += varField('10', String(getVal(row,'current_balance')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'amount_overdue')) tl += varField('11', String(getVal(row,'amount_overdue')).replace(/[^0-9]/g,''), 9);
+    if (getVal(row,'dpd')) tl += varField('12', String(getVal(row,'dpd')).padStart(3,'0').substring(0,3), 3);
+    if (getVal(row,'asset_classification')) tl += varField('13', getVal(row,'asset_classification'), 2);
+    const tlLen = String(tl.length - 2).padStart(2,'0');
+    rec += tl.substring(0,2) + tlLen + tl.substring(2) + '\n';
+  }
+
+  rec += 'ES0201\n';
+  return rec;
+}
+
+function generateTUDF() {
+  const memberId = (document.getElementById('member-id').value || 'MEMBER00').padEnd(8,' ').substring(0,8).toUpperCase();
+  const pwd = (document.getElementById('report-pwd').value || 'PASSWORD').padEnd(30,' ').substring(0,30);
+  const reportDate = (document.getElementById('report-date').value || '15042026').replace(/\D/g,'').substring(0,8);
+  const bureauNames = { cibil: 'TransUnion CIBIL', crif: 'CRIF High Mark', equifax: 'Equifax India' };
+
+  let output = '';
+  output += 'TUDF' + memberId + pwd.padEnd(30,' ') + reportDate + '\n';
+
+  let recordCount = 0;
+  excelData.forEach(row => {
+    try { output += buildTUDFRecord(row); recordCount++; } catch(e) {}
+  });
+
+  output += `TRLR${String(recordCount).padStart(6,'0')}`;
+  tudfOutput = output;
+
+  const lines = output.split('\n');
+  document.getElementById('output-preview').textContent = lines.slice(0, 30).join('\n') + (lines.length > 30 ? '\n...' : '');
+
+  const statsEl = document.getElementById('stats-bar-area');
+  statsEl.innerHTML = `<div class="stats-bar"><span><strong>${bureauNames[selectedBureau]}</strong></span><span class="stat-sep">·</span><span>${selectedType === 'consumer' ? 'Consumer' : 'Commercial'} format</span><span class="stat-sep">·</span><span><strong>${recordCount}</strong> records</span><span class="stat-sep">·</span><span><strong>${(new Blob([output]).size / 1024).toFixed(1)} KB</strong></span></div>`;
+}
+
+function downloadTUDF() {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,'0');
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const yyyy = today.getFullYear();
+  const bureauCode = { cibil: 'CIBIL', crif: 'CRIF', equifax: 'EFX' }[selectedBureau];
+  const typeCode = selectedType === 'consumer' ? 'CON' : 'COM';
+  const filename = `TUDF_${bureauCode}_${typeCode}_${dd}${mm}${yyyy}.txt`;
+  const blob = new Blob([tudfOutput], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+function downloadSample() {
+  const consumerHeaders = ['borrower_name','date_of_birth','gender','pan_number','mobile','address_line1','city','state','pincode','account_number','portfolio_type','account_type','ownership_indicator','date_opened','date_reported','sanctioned_amount','current_balance','amount_overdue','dpd','asset_classification','payment_rating','emi_amount','tenure'];
+  const sampleRow = ['RAMESH KUMAR SHARMA','01011985','2','ABCPK1234Q','9876543210','123 MG ROAD APARTMENT 4B','MUMBAI','MAHARASHTRA','400001','LAP000123456','HL','10','1','01062022','15042026','5000000','4200000','0','000','01','0','45000','180'];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([consumerHeaders, sampleRow]);
+  XLSX.utils.book_append_sheet(wb, ws, 'BorrowerData');
+  XLSX.writeFile(wb, 'TUDF_Sample_Template.xlsx');
+}
+
+function resetAll() {
+  excelData = []; headers = []; mappings = {}; tudfOutput = '';
+  document.getElementById('file-loaded-info').classList.add('hidden');
+  document.getElementById('preview-section').classList.add('hidden');
+  document.getElementById('btn-step3').disabled = true;
+  goStep(1);
+}
+</script>
+</body>
+</html>
