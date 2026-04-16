@@ -7,59 +7,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #f7f6f2;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e2e0d8;
-    --border-strong: #c8c6bc;
-    --text: #1a1916;
-    --text-2: #6b6860;
-    --text-3: #9c9a92;
-    --accent: #1a3a2a;
-    --accent-light: #e8f2ec;
-    --accent-border: #7ab893;
-    --danger: #8b2020;
-    --danger-bg: #fdf0f0;
-    --danger-border: #e8a0a0;
-    --warn: #7a5200;
-    --warn-bg: #fdf8ee;
-    --warn-border: #e8d090;
-    --success: #1a4a2e;
-    --success-bg: #edf7f1;
-    --success-border: #80c8a0;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
-    --radius: 8px;
-    --radius-lg: 14px;
+    --bg: #f7f6f2; --surface: #ffffff; --surface2: #f0efe9;
+    --border: #e2e0d8; --border-strong: #c8c6bc;
+    --text: #1a1916; --text-2: #6b6860; --text-3: #9c9a92;
+    --accent: #1a3a2a; --accent-light: #e8f2ec; --accent-border: #7ab893;
+    --danger: #8b2020; --danger-bg: #fdf0f0; --danger-border: #e8a0a0;
+    --warn: #7a5200; --warn-bg: #fdf8ee; --warn-border: #e8d090;
+    --success: #1a4a2e; --success-bg: #edf7f1; --success-border: #80c8a0;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'DM Sans', sans-serif;
+    --radius: 8px; --radius-lg: 14px;
   }
-
   body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; min-height: 100vh; }
-
   .header { background: var(--accent); color: #fff; padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
   .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: #c8e8d8; }
   .header-title { font-size: 17px; font-weight: 500; letter-spacing: -0.3px; }
   .header-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 1px; }
-  .header-badges { margin-left: auto; display: flex; gap: 8px; }
+  .header-badges { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
-
   .main { max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }
-
-  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
-  .step { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 13px; color: var(--text-3); cursor: default; transition: all 0.2s; }
+  .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; flex-wrap: wrap; }
+  .step { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 13px; color: var(--text-3); }
   .step.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
   .step.done { color: var(--text-2); }
   .step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
   .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .step.done .step-num { background: var(--border); border-color: var(--border); }
   .step-arrow { color: var(--border-strong); font-size: 12px; padding: 0 4px; }
-
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
   .card-title { font-size: 13px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
-
   .bureau-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .bureau-btn { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; }
   .bureau-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
@@ -68,25 +44,20 @@
   .bureau-btn .bcode { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 2px; }
   .bureau-btn .bcheck { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-strong); float: right; margin-top: 2px; transition: all 0.15s; }
   .bureau-btn.selected .bcheck { background: var(--accent); border-color: var(--accent); }
-
   .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .type-btn { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; }
   .type-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
   .type-btn.selected { border-color: var(--accent); background: var(--accent-light); }
   .type-btn .tname { font-size: 14px; font-weight: 500; }
   .type-btn .tdesc { font-size: 12px; color: var(--text-3); margin-top: 3px; }
-
   .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); }
   .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
   .upload-icon { font-size: 28px; margin-bottom: 10px; }
   .upload-text { font-size: 14px; color: var(--text-2); }
   .upload-hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
   #file-input { display: none; }
-
   .file-loaded { background: var(--success-bg); border: 1px solid var(--success-border); border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--success); }
   .file-loaded .fname { font-weight: 500; font-family: var(--mono); }
-  .file-loaded .fstats { color: var(--text-3); font-size: 12px; }
-
   .mapping-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .mapping-table th { text-align: left; padding: 8px 12px; background: var(--surface2); color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 12px; }
   .mapping-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -97,51 +68,38 @@
   .req-optional { background: var(--surface2); color: var(--text-3); }
   .field-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
   .mapping-table select { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: var(--sans); background: var(--surface); color: var(--text); }
-  .mapping-table select:focus { outline: none; border-color: var(--accent); }
-
-  .section-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .section-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
   .sec-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); transition: all 0.15s; }
   .sec-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
   .errors-list { margin-top: 12px; }
   .error-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius); margin-bottom: 6px; font-size: 12px; color: var(--danger); }
   .warn-item { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn); }
-
-  .output-box { background: #1a1916; border-radius: var(--radius); padding: 16px; font-family: var(--mono); font-size: 11px; color: #c8c6bc; line-height: 1.7; max-height: 280px; overflow-y: auto; white-space: pre; }
-
+  .output-box { background: #1a1916; border-radius: var(--radius); padding: 16px; font-family: var(--mono); font-size: 11px; color: #c8c6bc; line-height: 1.7; max-height: 320px; overflow-y: auto; white-space: pre; }
   .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .btn { padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: 1.5px solid; transition: all 0.15s; font-family: var(--sans); }
   .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn-primary:hover { background: #0f2a1c; }
   .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
   .btn-secondary:hover { background: var(--surface2); }
-  .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .stats-bar { display: flex; gap: 20px; padding: 12px 16px; background: var(--surface2); border-radius: var(--radius); font-size: 12px; color: var(--text-2); }
+  .stats-bar { display: flex; gap: 20px; padding: 12px 16px; background: var(--surface2); border-radius: var(--radius); font-size: 12px; color: var(--text-2); flex-wrap: wrap; }
   .stat-item strong { color: var(--text); font-weight: 600; }
   .stat-sep { color: var(--border-strong); }
-
   .hidden { display: none !important; }
   .info-box { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--accent); margin-bottom: 16px; }
-  .info-box strong { font-weight: 600; }
-
   .sample-link { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-
   .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 28px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
-
   table.preview { width: 100%; font-size: 12px; border-collapse: collapse; }
   table.preview th { background: var(--surface2); padding: 6px 10px; text-align: left; color: var(--text-2); font-weight: 500; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; }
   table.preview td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--text); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  table.preview tr:last-child td { border-bottom: none; }
   .preview-wrap { max-height: 180px; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); }
-
   .member-id-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
   .field-group { display: flex; flex-direction: column; gap: 4px; }
   .field-group label { font-size: 12px; color: var(--text-2); font-weight: 500; }
-  .field-group input { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: var(--mono); background: var(--surface); color: var(--text); width: 220px; }
+  .field-group input { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: var(--mono); background: var(--surface); color: var(--text); width: 210px; }
   .field-group input:focus { outline: none; border-color: var(--accent); }
+  .auto-mapped-badge { font-size: 10px; background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); border-radius: 10px; padding: 1px 7px; margin-left: 6px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -150,7 +108,7 @@
   <div class="header-logo">TU<br>DF</div>
   <div>
     <div class="header-title">TUDF / UCRF Converter</div>
-    <div class="header-sub">Excel → Bureau submission file generator</div>
+    <div class="header-sub">Excel → Bureau submission file generator · UCRF v3.73</div>
   </div>
   <div class="header-badges">
     <span class="badge">TransUnion CIBIL</span>
@@ -161,7 +119,6 @@
 
 <div class="main">
   <div class="progress-bar"><div class="progress-fill" id="progress" style="width:14%"></div></div>
-
   <div class="steps">
     <div class="step active" id="st-1"><span class="step-num">1</span> Configure</div>
     <span class="step-arrow">›</span>
@@ -174,7 +131,7 @@
     <div class="step" id="st-5"><span class="step-num">5</span> Generate</div>
   </div>
 
-  <!-- STEP 1: Configure -->
+  <!-- STEP 1 -->
   <div id="panel-1">
     <div class="card">
       <div class="card-title">Select bureau</div>
@@ -182,37 +139,35 @@
         <button class="bureau-btn selected" onclick="selectBureau('cibil',this)">
           <span class="bcheck"></span>
           <div class="bname">TransUnion CIBIL</div>
-          <div class="bcode">UCRF v3.73</div>
+          <div class="bcode">UCRF v3.73 · Consumer</div>
         </button>
         <button class="bureau-btn" onclick="selectBureau('crif',this)">
           <span class="bcheck"></span>
           <div class="bname">CRIF High Mark</div>
-          <div class="bcode">UCRF v3.73</div>
+          <div class="bcode">UCRF v3.73 · Consumer</div>
         </button>
         <button class="bureau-btn" onclick="selectBureau('equifax',this)">
           <span class="bcheck"></span>
           <div class="bname">Equifax</div>
-          <div class="bcode">UCRF v3.73</div>
+          <div class="bcode">UCRF v3.73 · Consumer</div>
         </button>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Report type</div>
       <div class="type-grid">
         <button class="type-btn selected" onclick="selectType('consumer',this)">
           <div class="tname">Consumer</div>
-          <div class="tdesc">Individual borrowers — retail, personal, home, auto loans</div>
+          <div class="tdesc">Individual borrowers — retail, personal, home, auto, gold loans</div>
         </button>
         <button class="type-btn" onclick="selectType('commercial',this)">
           <div class="tname">Commercial</div>
           <div class="tdesc">Business entities — MSME, corporate, business loans</div>
         </button>
       </div>
-
       <div class="member-id-row">
         <div class="field-group">
-          <label>Member ID (assigned by bureau)</label>
+          <label>Member ID (bureau-assigned)</label>
           <input type="text" id="member-id" placeholder="e.g. MBR000123" />
         </div>
         <div class="field-group">
@@ -225,29 +180,28 @@
         </div>
       </div>
     </div>
-
     <div class="actions">
       <button class="btn btn-primary" onclick="goStep(2)">Continue to upload →</button>
     </div>
   </div>
 
-  <!-- STEP 2: Upload -->
+  <!-- STEP 2 -->
   <div id="panel-2" class="hidden">
     <div class="card">
       <div class="card-title">Upload Excel file</div>
       <div class="info-box">
-        <strong>Format:</strong> .xlsx or .xls — one row per borrower account. Headers must be in row 1.
-        No sample file? <span class="sample-link" onclick="downloadSample()">Download sample template</span>
+        <strong>Supported format:</strong> Standard CIBIL submission Excel (.xlsx/.xls) — one row per borrower account, headers in row 1.<br>
+        Uses the same column layout as your bureau-provided template. <span class="sample-link" onclick="downloadSample()">Download sample template</span>
       </div>
       <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
         <div class="upload-icon">📂</div>
-        <div class="upload-text">Click to browse or drag & drop your Excel file here</div>
-        <div class="upload-hint">.xlsx / .xls supported · Max 50,000 rows</div>
+        <div class="upload-text">Click to browse or drag & drop your Excel file</div>
+        <div class="upload-hint">.xlsx / .xls · Max 50,000 rows</div>
       </div>
       <input type="file" id="file-input" accept=".xlsx,.xls" onchange="loadFile(this.files[0])">
       <div id="file-loaded-info" class="hidden" style="margin-top:12px;"></div>
       <div id="preview-section" class="hidden" style="margin-top:16px;">
-        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:500;">Preview (first 5 rows)</div>
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:500;">Preview — first 5 rows</div>
         <div class="preview-wrap"><table class="preview" id="preview-table"></table></div>
       </div>
     </div>
@@ -257,10 +211,11 @@
     </div>
   </div>
 
-  <!-- STEP 3: Map fields -->
+  <!-- STEP 3 -->
   <div id="panel-3" class="hidden">
     <div class="card">
-      <div class="card-title">Map Excel columns to TUDF segments</div>
+      <div class="card-title">Field mapping — TUDF segments</div>
+      <div class="info-box" id="automapped-notice"></div>
       <div class="section-tabs" id="seg-tabs"></div>
       <div id="mapping-body"></div>
     </div>
@@ -270,7 +225,7 @@
     </div>
   </div>
 
-  <!-- STEP 4: Validate -->
+  <!-- STEP 4 -->
   <div id="panel-4" class="hidden">
     <div class="card">
       <div class="card-title">Validation results</div>
@@ -282,13 +237,13 @@
     </div>
   </div>
 
-  <!-- STEP 5: Generate -->
+  <!-- STEP 5 -->
   <div id="panel-5" class="hidden">
     <div class="card">
-      <div class="card-title">Generated TUDF file</div>
+      <div class="card-title">Generated TUDF output</div>
       <div id="stats-bar-area" style="margin-bottom:14px;"></div>
       <div class="output-box" id="output-preview"></div>
-      <div style="margin-top:12px; font-size:12px; color:var(--text-3);">Showing first 30 lines — full file will be downloaded</div>
+      <div style="margin-top:10px; font-size:12px; color:var(--text-3);">Showing first 40 lines — full file downloaded on click below</div>
     </div>
     <div class="actions">
       <button class="btn btn-primary" id="btn-download" onclick="downloadTUDF()">⬇ Download .txt file</button>
@@ -305,94 +260,479 @@ let excelData = [];
 let headers = [];
 let mappings = {};
 let tudfOutput = '';
-let currentSeg = 'header';
 
+// ── Exact column names from the CIBIL submission Excel format ──
+// fieldName → exact Excel column header (case-insensitive match attempted)
+const CANONICAL_MAP = {
+  consumer_name:         'Consumer Name',
+  date_of_birth:         'Date of Birth',
+  gender:                'Gender',
+  pan_no:                'Pan No',
+  passport_no:           'Passport No',
+  passport_issue_date:   'Passport Issue Date',
+  passport_expiry_date:  'Passport Expiry Date',
+  voter_id:              'Voter ID',
+  driving_license:       'Driving License',
+  dl_issue_date:         'Driving License Issue Date',
+  dl_expiry_date:        'Driving License Expiry Date',
+  ration_card:           'Ration Card Number',
+  uid:                   'Universal ID Number',
+  add_id1:               'Additional ID #1',
+  add_id2:               'Additional ID #2',
+  mobile_no:             'Mobile No',
+  landline_no:           'Landline No',
+  tel_office:            'Telephone No.Office',
+  ext_office:            'Extension Office',
+  tel_other:             'Telephone No.Other',
+  ext_other:             'Extension Other',
+  email1:                'Email ID1',
+  email2:                'Email ID2',
+  address1:              'Address1',
+  state_code1:           'State Code1',
+  pin_code1:             'PIN Code',
+  addr_category1:        'Address Category1',
+  residence_code1:       'Residence Code1',
+  address2:              'Address2',
+  state_code2:           'State Code2',
+  pin_code2:             'PIN Code2',
+  addr_category2:        'Address Category2',
+  residence_code2:       'Residence Code2',
+  member_code:           'Current/New Member Code',
+  member_short_name:     'Current/New Member Short Name',
+  account_no:            'Curr/New Account No',
+  account_type:          'Account Type',
+  ownership_indicator:   'Ownership Indicator',
+  date_opened:           'Date Opened/Disbursed',
+  date_last_payment:     'Date of Last Payment',
+  date_closed:           'Date Closed',
+  date_reported:         'Date Reported',
+  high_credit:           'High Credit/Sanctioned Amt',
+  current_balance:       'Current  Balance',
+  amt_overdue:           'Amt Overdue',
+  dpd:                   'No of Days Past Due',
+  old_mbr_code:          'Old Mbr Code',
+  old_mbr_short:         'Old Mbr Short Name',
+  old_acc_no:            'Old Acc No',
+  old_acc_type:          'Old Acc Type',
+  old_ownership:         'Old Ownership Indicator',
+  suit_filed:            'Suit Filed / Wilful Default',
+  credit_facility_status:'Credit Facility Status',
+  asset_classification:  'Asset Classification',
+  collateral_value:      'Value of Collateral',
+  collateral_type:       'Type of Collateral',
+  credit_limit:          'Credit Limit',
+  cash_limit:            'Cash Limit',
+  rate_of_interest:      'Rate of Interest',
+  repayment_tenure:      'Repayment Tenure',
+  emi_amount:            'EMI Amount',
+  written_off_total:     'Written- off Amount (Total)',
+  written_off_principal: 'Written- off Principal Amount',
+  settlement_amt:        'Settlement Amt',
+  payment_frequency:     'Payment Frequency',
+  actual_payment_amt:    'Actual Payment Amt',
+  occupation_code:       'Occupation Code',
+  income:                'Income',
+  net_gross_indicator:   'Net/Gross Income Indicator',
+  income_frequency:      'Monthly/Annual Income Indicator',
+};
+
+// Segments and their field definitions
 const SEGMENTS_CONSUMER = [
-  { id: 'header', label: 'Header (TUDF)', fields: [] },
   { id: 'pn', label: 'Name (PN)', fields: [
-    { tag: '01', name: 'consumer_name_1', label: 'Consumer name (field 1)', required: true, desc: 'First 26 chars of borrower name' },
-    { tag: '07', name: 'date_of_birth', label: 'Date of birth', required: false, desc: 'DDMMYYYY' },
-    { tag: '08', name: 'gender', label: 'Gender', required: false, desc: '1=Female, 2=Male' },
+    { name: 'consumer_name',  label: 'Consumer name',        required: true,  desc: 'Full name — up to 26 chars per field' },
+    { name: 'date_of_birth',  label: 'Date of birth',        required: false, desc: 'DDMMYYYY format' },
+    { name: 'gender',         label: 'Gender',               required: false, desc: '1=Female, 2=Male' },
   ]},
-  { id: 'id', label: 'ID (ID)', fields: [
-    { tag: '01', name: 'id_type', label: 'ID type', required: false, desc: '01=PAN, 02=Passport, 03=Voter ID, 04=DL, 08=Aadhaar' },
-    { tag: '02', name: 'id_number', label: 'ID number', required: false, desc: 'Document number' },
+  { id: 'id', label: 'Identification (ID)', fields: [
+    { name: 'pan_no',              label: 'PAN number',             required: false, desc: 'Type 01' },
+    { name: 'passport_no',         label: 'Passport number',        required: false, desc: 'Type 02' },
+    { name: 'passport_issue_date', label: 'Passport issue date',    required: false, desc: 'DDMMYYYY' },
+    { name: 'passport_expiry_date',label: 'Passport expiry date',   required: false, desc: 'DDMMYYYY' },
+    { name: 'voter_id',            label: 'Voter ID',               required: false, desc: 'Type 03' },
+    { name: 'driving_license',     label: 'Driving license no.',    required: false, desc: 'Type 04' },
+    { name: 'dl_issue_date',       label: 'DL issue date',          required: false, desc: 'DDMMYYYY' },
+    { name: 'dl_expiry_date',      label: 'DL expiry date',         required: false, desc: 'DDMMYYYY' },
+    { name: 'ration_card',         label: 'Ration card number',     required: false, desc: 'Type 07' },
+    { name: 'uid',                 label: 'Aadhaar / Universal ID', required: false, desc: 'Type 08' },
+    { name: 'add_id1',             label: 'Additional ID #1',       required: false, desc: 'Type 09' },
+    { name: 'add_id2',             label: 'Additional ID #2',       required: false, desc: 'Type 10' },
   ]},
   { id: 'pt', label: 'Telephone (PT)', fields: [
-    { tag: '01', name: 'tel_number', label: 'Telephone number', required: false, desc: '10-digit mobile/phone' },
-    { tag: '03', name: 'tel_type', label: 'Telephone type', required: false, desc: '01=Mobile, 02=Home, 03=Office' },
+    { name: 'mobile_no',   label: 'Mobile number',     required: false, desc: '10 digits — Type 01' },
+    { name: 'landline_no', label: 'Landline number',   required: false, desc: 'Home — Type 02' },
+    { name: 'tel_office',  label: 'Office telephone',  required: false, desc: 'Office — Type 03' },
+    { name: 'tel_other',   label: 'Other telephone',   required: false, desc: 'Other — Type 04' },
+  ]},
+  { id: 'ec', label: 'Email (EC)', fields: [
+    { name: 'email1', label: 'Email ID 1', required: false, desc: 'Primary email address' },
+    { name: 'email2', label: 'Email ID 2', required: false, desc: 'Secondary email address' },
   ]},
   { id: 'pa', label: 'Address (PA)', fields: [
-    { tag: '01', name: 'addr_line1', label: 'Address line 1', required: true, desc: 'Street / flat / building' },
-    { tag: '02', name: 'addr_line2', label: 'Address line 2', required: false, desc: 'Area / locality' },
-    { tag: '03', name: 'addr_line3', label: 'Address line 3', required: false, desc: 'City name' },
-    { tag: '04', name: 'addr_line4', label: 'Address line 4', required: false, desc: 'State name' },
-    { tag: '05', name: 'addr_line5', label: 'Address line 5', required: false, desc: 'Country code (IN)' },
-    { tag: '06', name: 'pincode', label: 'Pin code', required: true, desc: '6-digit PIN' },
-    { tag: '07', name: 'addr_category', label: 'Address category', required: false, desc: '01=Permanent, 02=Residence, 03=Office, 04=Not categorised' },
+    { name: 'address1',       label: 'Address line 1',    required: true,  desc: 'Street / building / flat — max 40 chars' },
+    { name: 'state_code1',    label: 'State code 1',      required: false, desc: '2-digit RBI state code e.g. 36=Telangana' },
+    { name: 'pin_code1',      label: 'PIN code 1',        required: true,  desc: '6-digit PIN' },
+    { name: 'addr_category1', label: 'Address category 1',required: false, desc: '01=Permanent, 02=Residence, 03=Office, 04=Not categorised' },
+    { name: 'residence_code1',label: 'Residence code 1',  required: false, desc: '01=Owned, 02=Rented, 03=Company provided' },
+    { name: 'address2',       label: 'Address line 2',    required: false, desc: 'Second address (optional)' },
+    { name: 'state_code2',    label: 'State code 2',      required: false, desc: '2-digit RBI state code' },
+    { name: 'pin_code2',      label: 'PIN code 2',        required: false, desc: '6-digit PIN' },
+    { name: 'addr_category2', label: 'Address category 2',required: false, desc: '01-04' },
+    { name: 'residence_code2',label: 'Residence code 2',  required: false, desc: '01-03' },
   ]},
   { id: 'tl', label: 'Account (TL)', fields: [
-    { tag: '01', name: 'acct_number', label: 'Account number', required: true, desc: 'Unique loan/account ID' },
-    { tag: '02', name: 'portfolio_type', label: 'Portfolio type', required: true, desc: 'AL=Auto Loan, HL=Home Loan, PL=Personal Loan, CC=Credit Card, GL=Gold Loan, etc.' },
-    { tag: '03', name: 'acct_type', label: 'Account type', required: true, desc: '10=Loan, 00=Credit Card' },
-    { tag: '04', name: 'ownership_indicator', label: 'Ownership indicator', required: true, desc: '1=Individual, 2=Authorised user, 3=Guarantor, 4=Joint' },
-    { tag: '05', name: 'date_opened', label: 'Date opened / disbursed', required: true, desc: 'DDMMYYYY' },
-    { tag: '06', name: 'date_last_payment', label: 'Date of last payment', required: false, desc: 'DDMMYYYY' },
-    { tag: '07', name: 'date_closed', label: 'Date closed', required: false, desc: 'DDMMYYYY — only for closed accounts' },
-    { tag: '08', name: 'date_reported', label: 'Date reported & certified', required: true, desc: 'DDMMYYYY' },
-    { tag: '09', name: 'high_credit', label: 'High credit / sanctioned amount', required: true, desc: 'Amount in INR (whole number)' },
-    { tag: '10', name: 'current_balance', label: 'Current balance', required: true, desc: 'Amount in INR' },
-    { tag: '11', name: 'amount_overdue', label: 'Amount overdue', required: false, desc: 'Amount in INR (0 if no overdues)' },
-    { tag: '12', name: 'dpd', label: 'DPD (Days past due)', required: false, desc: 'Number of days overdue (e.g. 000, 030)' },
-    { tag: '13', name: 'asset_classification', label: 'Asset classification', required: false, desc: '01=Standard, 02=Sub-standard, 03=Doubtful, 04=Loss' },
-    { tag: '14', name: 'payment_rating', label: 'Payment rating', required: false, desc: '0=New, 1=1-30 DPD, 2=31-60, 3=61-90, 4=91-120, 5=121-150, 6=151-180, 7=180+, 8=Suit Filed, 9=Written Off' },
-    { tag: '15', name: 'credit_limit', label: 'Credit limit', required: false, desc: 'For credit cards — sanctioned limit in INR' },
-    { tag: '16', name: 'cash_limit', label: 'Cash limit', required: false, desc: 'For credit cards — cash limit in INR' },
-    { tag: '17', name: 'emi_amount', label: 'EMI amount', required: false, desc: 'Monthly EMI in INR' },
-    { tag: '18', name: 'written_off_amt', label: 'Written off amount (total)', required: false, desc: 'Total written off amount in INR' },
-    { tag: '19', name: 'written_off_settled', label: 'Written off amount (settled)', required: false, desc: 'Settled amount in INR' },
-    { tag: '20', name: 'tenure', label: 'Tenure (months)', required: false, desc: 'Loan tenure in months' },
-    { tag: '21', name: 'interest_rate', label: 'Interest rate', required: false, desc: 'Annual rate as percentage' },
-    { tag: '22', name: 'repayment_tenure', label: 'Repayment tenure', required: false, desc: 'Original repayment period in months' },
-    { tag: '23', name: 'occupation_code', label: 'Occupation code', required: false, desc: '01=Salaried, 02=Self-Employed Professional, 03=Self-Employed Non-Professional, 04=Others' },
-    { tag: '24', name: 'income', label: 'Income', required: false, desc: 'Annual income in INR' },
-    { tag: '25', name: 'net_or_gross', label: 'Net/Gross income indicator', required: false, desc: '1=Net, 2=Gross' },
-    { tag: '26', name: 'monthly_income', label: 'Monthly income', required: false, desc: 'Monthly income in INR' },
+    { name: 'member_code',          label: 'Member code (curr/new)',  required: true,  desc: 'Your bureau member code' },
+    { name: 'member_short_name',    label: 'Member short name',       required: false, desc: 'Abbreviated member name' },
+    { name: 'account_no',           label: 'Account number',          required: true,  desc: 'Unique loan/account ID — max 25 chars' },
+    { name: 'account_type',         label: 'Account type',            required: true,  desc: '10=Loan, 00=Credit Card, 05=Overdraft' },
+    { name: 'ownership_indicator',  label: 'Ownership indicator',     required: true,  desc: '1=Individual, 2=Auth User, 3=Guarantor, 4=Joint' },
+    { name: 'date_opened',          label: 'Date opened/disbursed',   required: true,  desc: 'DDMMYYYY' },
+    { name: 'date_last_payment',    label: 'Date of last payment',    required: false, desc: 'DDMMYYYY' },
+    { name: 'date_closed',          label: 'Date closed',             required: false, desc: 'DDMMYYYY — for closed accounts only' },
+    { name: 'date_reported',        label: 'Date reported',           required: true,  desc: 'DDMMYYYY — reporting cycle date' },
+    { name: 'high_credit',          label: 'High credit/sanctioned amt', required: true,  desc: 'Amount in INR (whole number)' },
+    { name: 'current_balance',      label: 'Current balance',         required: true,  desc: 'Outstanding principal in INR' },
+    { name: 'amt_overdue',          label: 'Amount overdue',          required: false, desc: 'Overdue amount in INR (0 if current)' },
+    { name: 'dpd',                  label: 'Days past due (DPD)',      required: false, desc: 'e.g. 000, 030, 090, 900' },
+    { name: 'old_mbr_code',         label: 'Old member code',         required: false, desc: 'Previous member code (if changed)' },
+    { name: 'old_mbr_short',        label: 'Old member short name',   required: false, desc: '' },
+    { name: 'old_acc_no',           label: 'Old account number',      required: false, desc: 'Previous account number' },
+    { name: 'old_acc_type',         label: 'Old account type',        required: false, desc: '' },
+    { name: 'old_ownership',        label: 'Old ownership indicator', required: false, desc: '' },
+    { name: 'suit_filed',           label: 'Suit filed/wilful default',required: false, desc: '0=None, 1=Suit Filed, 2=Wilful Default, 3=Written Off & Suit Filed' },
+    { name: 'credit_facility_status',label:'Credit facility status',  required: false, desc: '00=Active, 01=Closed' },
+    { name: 'asset_classification', label: 'Asset classification',    required: false, desc: '01=Standard, 02=Sub-standard, 03=Doubtful, 04=Loss' },
+    { name: 'collateral_value',     label: 'Value of collateral',     required: false, desc: 'INR' },
+    { name: 'collateral_type',      label: 'Type of collateral',      required: false, desc: '01=Property, 02=Gold, 03=Shares, 04=Vehicle' },
+    { name: 'credit_limit',         label: 'Credit limit',            required: false, desc: 'For CC/OD — sanctioned limit in INR' },
+    { name: 'cash_limit',           label: 'Cash limit',              required: false, desc: 'For CC — cash limit in INR' },
+    { name: 'rate_of_interest',     label: 'Rate of interest',        required: false, desc: 'Annual rate as percentage' },
+    { name: 'repayment_tenure',     label: 'Repayment tenure',        required: false, desc: 'Tenure in months' },
+    { name: 'emi_amount',           label: 'EMI amount',              required: false, desc: 'Monthly EMI in INR' },
+    { name: 'written_off_total',    label: 'Written-off amt (total)', required: false, desc: 'INR' },
+    { name: 'written_off_principal',label: 'Written-off principal',   required: false, desc: 'INR' },
+    { name: 'settlement_amt',       label: 'Settlement amount',       required: false, desc: 'INR' },
+    { name: 'payment_frequency',    label: 'Payment frequency',       required: false, desc: '01=Monthly, 02=Quarterly, 03=Annually' },
+    { name: 'actual_payment_amt',   label: 'Actual payment amount',   required: false, desc: 'INR' },
+    { name: 'occupation_code',      label: 'Occupation code',         required: false, desc: '01=Salaried, 02=SE Professional, 03=SE Non-Prof, 04=Others' },
+    { name: 'income',               label: 'Income',                  required: false, desc: 'In INR' },
+    { name: 'net_gross_indicator',  label: 'Net/Gross indicator',     required: false, desc: '1=Net, 2=Gross' },
+    { name: 'income_frequency',     label: 'Monthly/Annual indicator',required: false, desc: '1=Monthly, 2=Annual' },
   ]},
 ];
 
-const SEGMENTS_COMMERCIAL = [
-  { id: 'header', label: 'Header (TUDF)', fields: [] },
-  { id: 'cn', label: 'Company Name (CN)', fields: [
-    { tag: '01', name: 'company_name', label: 'Company / entity name', required: true, desc: 'Legal name of borrowing entity' },
-    { tag: '02', name: 'short_name', label: 'Short name', required: false, desc: 'Abbreviated name' },
-    { tag: '03', name: 'category', label: 'Business category', required: false, desc: '01=Private Ltd, 02=Public Ltd, 03=Partnership, 04=Proprietorship, 05=Others' },
-  ]},
-  { id: 'id', label: 'ID (ID)', fields: [
-    { tag: '01', name: 'id_type', label: 'ID type', required: false, desc: '01=CIN, 02=PAN, 03=GSTIN, 04=TAN' },
-    { tag: '02', name: 'id_number', label: 'ID number', required: false, desc: 'Registration / PAN / GSTIN number' },
-  ]},
-  { id: 'pa', label: 'Address (PA)', fields: [
-    { tag: '01', name: 'addr_line1', label: 'Address line 1', required: true, desc: 'Registered office address' },
-    { tag: '03', name: 'addr_line3', label: 'City', required: false, desc: '' },
-    { tag: '04', name: 'addr_line4', label: 'State', required: false, desc: '' },
-    { tag: '06', name: 'pincode', label: 'Pin code', required: true, desc: '6-digit PIN' },
-  ]},
-  { id: 'tl', label: 'Account (TL)', fields: [
-    { tag: '01', name: 'acct_number', label: 'Account number', required: true, desc: 'Loan / facility ID' },
-    { tag: '02', name: 'portfolio_type', label: 'Portfolio type', required: true, desc: 'TL=Term Loan, CC=Cash Credit, OD=Overdraft, LC=Letter of Credit, BG=Bank Guarantee' },
-    { tag: '04', name: 'ownership_indicator', label: 'Ownership indicator', required: true, desc: '1=Individual, 4=Joint, 5=Primary borrower' },
-    { tag: '05', name: 'date_opened', label: 'Date opened', required: true, desc: 'DDMMYYYY' },
-    { tag: '08', name: 'date_reported', label: 'Date reported', required: true, desc: 'DDMMYYYY' },
-    { tag: '09', name: 'high_credit', label: 'Sanctioned amount', required: true, desc: 'Amount in INR' },
-    { tag: '10', name: 'current_balance', label: 'Current balance outstanding', required: true, desc: 'Amount in INR' },
-    { tag: '11', name: 'amount_overdue', label: 'Amount overdue', required: false, desc: 'Amount in INR' },
-    { tag: '12', name: 'dpd', label: 'DPD', required: false, desc: 'Days past due (000 if current)' },
-    { tag: '13', name: 'asset_classification', label: 'Asset classification', required: false, desc: '01=Standard, 02=Sub-standard, 03=Doubtful, 04=Loss' },
-  ]},
-];
+function autoMap() {
+  const lowerHeaders = headers.map(h => h.trim().toLowerCase());
+  let matched = 0;
+  Object.entries(CANONICAL_MAP).forEach(([field, canonical]) => {
+    const canonLower = canonical.trim().toLowerCase();
+    const exactIdx = lowerHeaders.indexOf(canonLower);
+    if (exactIdx !== -1) { mappings[field] = headers[exactIdx]; matched++; return; }
+    // fuzzy: strip spaces/special chars
+    const canonClean = canonLower.replace(/[\s\/\-\.#]/g,'');
+    const fuzzyIdx = lowerHeaders.findIndex(h => h.replace(/[\s\/\-\.#]/g,'') === canonClean);
+    if (fuzzyIdx !== -1) { mappings[field] = headers[fuzzyIdx]; matched++; }
+  });
+  return matched;
+}
 
-function getSegments() { return selectedType === 'consumer' ? SEGMENTS_CONSUMER : SEGMENTS_COMMERCIAL; }
+function getVal(row, fieldName) {
+  const col = mappings[fieldName];
+  if (!col) return '';
+  const idx = headers.indexOf(col);
+  if (idx === -1) return '';
+  return String(row[idx] !== undefined && row[idx] !== null ? row[idx] : '').trim();
+}
+
+function formatDate(val) {
+  if (!val) return '';
+  const s = String(val).replace(/\D/g,'');
+  if (s.length === 8) return s;
+  // Excel serial date
+  if (/^\d{5}$/.test(s)) {
+    const d = new Date(Math.round((parseInt(s) - 25569) * 86400 * 1000));
+    return String(d.getDate()).padStart(2,'0') + String(d.getMonth()+1).padStart(2,'0') + d.getFullYear();
+  }
+  return s.substring(0,8).padEnd(8,'0');
+}
+
+function varField(tag, val, maxLen) {
+  if (val === null || val === undefined || val === '') return '';
+  const v = String(val).substring(0, maxLen || 200);
+  if (!v) return '';
+  const tagStr = String(tag).padStart(2,'0');
+  const lenStr = String(v.length).padStart(2,'0');
+  return tagStr + lenStr + v;
+}
+
+function cleanAmt(val) { return String(val || '0').replace(/[^0-9]/g,'') || '0'; }
+function cleanDPD(val) { return String(val || '000').replace(/[^0-9]/g,'').padStart(3,'0').substring(0,3); }
+
+function buildPNSegment(row) {
+  let body = '';
+  const name = getVal(row, 'consumer_name').toUpperCase().substring(0,26);
+  body += varField('01', name, 26);
+  const dob = formatDate(getVal(row, 'date_of_birth'));
+  if (dob) body += varField('07', dob, 8);
+  const gender = getVal(row, 'gender');
+  if (gender) body += varField('08', gender, 1);
+  return 'PN' + String(body.length).padStart(2,'0') + body;
+}
+
+function buildIDSegments(row) {
+  let result = '';
+  const ids = [
+    { field: 'pan_no',          type: '01', maxLen: 10 },
+    { field: 'passport_no',     type: '02', maxLen: 15, issueField: 'passport_issue_date', expiryField: 'passport_expiry_date' },
+    { field: 'voter_id',        type: '03', maxLen: 20 },
+    { field: 'driving_license', type: '04', maxLen: 20, issueField: 'dl_issue_date', expiryField: 'dl_expiry_date' },
+    { field: 'ration_card',     type: '07', maxLen: 20 },
+    { field: 'uid',             type: '08', maxLen: 12 },
+    { field: 'add_id1',         type: '09', maxLen: 30 },
+    { field: 'add_id2',         type: '10', maxLen: 30 },
+  ];
+  ids.forEach(id => {
+    const val = getVal(row, id.field);
+    if (!val) return;
+    let body = varField('01', id.type, 2) + varField('02', val.toUpperCase().substring(0, id.maxLen), id.maxLen);
+    if (id.issueField) { const d = formatDate(getVal(row, id.issueField)); if (d) body += varField('03', d, 8); }
+    if (id.expiryField) { const d = formatDate(getVal(row, id.expiryField)); if (d) body += varField('04', d, 8); }
+    result += 'ID' + String(body.length).padStart(2,'0') + body + '\n';
+  });
+  return result;
+}
+
+function buildPTSegments(row) {
+  let result = '';
+  const phones = [
+    { field: 'mobile_no',   type: '01' },
+    { field: 'landline_no', type: '02' },
+    { field: 'tel_office',  type: '03' },
+    { field: 'tel_other',   type: '04' },
+  ];
+  phones.forEach(p => {
+    const val = String(getVal(row, p.field)).replace(/\D/g,'');
+    if (!val || val.length < 7) return;
+    const body = varField('01', val.substring(0,12), 12) + varField('03', p.type, 2);
+    result += 'PT' + String(body.length).padStart(2,'0') + body + '\n';
+  });
+  return result;
+}
+
+function buildECSegment(row) {
+  const e1 = getVal(row, 'email1'), e2 = getVal(row, 'email2');
+  if (!e1 && !e2) return '';
+  let body = '';
+  if (e1) body += varField('01', e1.substring(0,50), 50);
+  if (e2) body += varField('02', e2.substring(0,50), 50);
+  return 'EC' + String(body.length).padStart(2,'0') + body + '\n';
+}
+
+function buildPASegments(row) {
+  let result = '';
+  // Address 1
+  const a1 = getVal(row, 'address1');
+  if (a1) {
+    let body = varField('01', a1.toUpperCase().substring(0,40), 40);
+    const sc1 = getVal(row, 'state_code1');
+    if (sc1) body += varField('04', String(sc1).padStart(2,'0').substring(0,2), 2);
+    const pin1 = String(getVal(row, 'pin_code1')).replace(/\D/g,'').substring(0,6);
+    body += varField('05', pin1.padEnd(6,'0').substring(0,6), 6);
+    const cat1 = getVal(row, 'addr_category1');
+    if (cat1) body += varField('06', String(cat1).padStart(2,'0').substring(0,2), 2);
+    const res1 = getVal(row, 'residence_code1');
+    if (res1) body += varField('07', String(res1).padStart(2,'0').substring(0,2), 2);
+    result += 'PA' + String(body.length).padStart(2,'0') + body + '\n';
+  }
+  // Address 2 (optional)
+  const a2 = getVal(row, 'address2');
+  if (a2) {
+    let body = varField('01', a2.toUpperCase().substring(0,40), 40);
+    const sc2 = getVal(row, 'state_code2');
+    if (sc2) body += varField('04', String(sc2).padStart(2,'0').substring(0,2), 2);
+    const pin2 = String(getVal(row, 'pin_code2')).replace(/\D/g,'').substring(0,6);
+    if (pin2) body += varField('05', pin2.padEnd(6,'0').substring(0,6), 6);
+    const cat2 = getVal(row, 'addr_category2');
+    if (cat2) body += varField('06', String(cat2).padStart(2,'0').substring(0,2), 2);
+    result += 'PA' + String(body.length).padStart(2,'0') + body + '\n';
+  }
+  return result;
+}
+
+function buildTLSegment(row, reportDate) {
+  let body = '';
+  const memberCode = getVal(row, 'member_code') || document.getElementById('member-id').value || 'MEMBER00';
+  body += varField('01', memberCode.toUpperCase().substring(0,30), 30);
+  const memberShort = getVal(row, 'member_short_name');
+  if (memberShort) body += varField('02', memberShort.toUpperCase().substring(0,10), 10);
+  body += varField('03', getVal(row, 'account_no').toUpperCase().substring(0,25), 25);
+  body += varField('04', String(getVal(row, 'account_type') || '13').padStart(2,'0').substring(0,2), 2);
+  body += varField('05', getVal(row, 'ownership_indicator') || '1', 1);
+  body += varField('06', formatDate(getVal(row, 'date_opened')), 8);
+  const dlp = formatDate(getVal(row, 'date_last_payment'));
+  if (dlp) body += varField('07', dlp, 8);
+  const dc = formatDate(getVal(row, 'date_closed'));
+  if (dc) body += varField('08', dc, 8);
+  body += varField('09', formatDate(getVal(row, 'date_reported') || reportDate), 8);
+  body += varField('10', cleanAmt(getVal(row, 'high_credit')).padStart(9,'0').substring(0,9), 9);
+  body += varField('11', cleanAmt(getVal(row, 'current_balance')).padStart(9,'0').substring(0,9), 9);
+  const overdue = cleanAmt(getVal(row, 'amt_overdue'));
+  body += varField('12', overdue.padStart(9,'0').substring(0,9), 9);
+  body += varField('13', cleanDPD(getVal(row, 'dpd')), 3);
+
+  // Old member/account fields
+  const oldCode = getVal(row, 'old_mbr_code');
+  if (oldCode) body += varField('14', oldCode.toUpperCase().substring(0,30), 30);
+  const oldShort = getVal(row, 'old_mbr_short');
+  if (oldShort) body += varField('15', oldShort.toUpperCase().substring(0,10), 10);
+  const oldAccNo = getVal(row, 'old_acc_no');
+  if (oldAccNo) body += varField('16', oldAccNo.toUpperCase().substring(0,25), 25);
+  const oldAccType = getVal(row, 'old_acc_type');
+  if (oldAccType) body += varField('17', String(oldAccType).padStart(2,'0').substring(0,2), 2);
+  const oldOwn = getVal(row, 'old_ownership');
+  if (oldOwn) body += varField('18', oldOwn.substring(0,1), 1);
+
+  const suit = getVal(row, 'suit_filed');
+  if (suit) body += varField('19', suit.substring(0,1), 1);
+  const cfs = getVal(row, 'credit_facility_status');
+  if (cfs) body += varField('20', String(cfs).padStart(2,'0').substring(0,2), 2);
+  const ac = getVal(row, 'asset_classification');
+  if (ac) body += varField('21', String(ac).padStart(2,'0').substring(0,2), 2);
+  const colVal = cleanAmt(getVal(row, 'collateral_value'));
+  if (colVal && colVal !== '0') body += varField('22', colVal.padStart(9,'0').substring(0,9), 9);
+  const colType = getVal(row, 'collateral_type');
+  if (colType) body += varField('23', String(colType).padStart(2,'0').substring(0,2), 2);
+  const cl = cleanAmt(getVal(row, 'credit_limit'));
+  if (cl && cl !== '0') body += varField('24', cl.padStart(9,'0').substring(0,9), 9);
+  const cashl = cleanAmt(getVal(row, 'cash_limit'));
+  if (cashl && cashl !== '0') body += varField('25', cashl.padStart(9,'0').substring(0,9), 9);
+  const roi = getVal(row, 'rate_of_interest');
+  if (roi) body += varField('26', String(roi).substring(0,5), 5);
+  const rt = getVal(row, 'repayment_tenure');
+  if (rt) body += varField('27', String(rt).replace(/\D/g,'').padStart(3,'0').substring(0,3), 3);
+  const emi = cleanAmt(getVal(row, 'emi_amount'));
+  if (emi && emi !== '0') body += varField('28', emi.padStart(9,'0').substring(0,9), 9);
+  const wot = cleanAmt(getVal(row, 'written_off_total'));
+  if (wot && wot !== '0') body += varField('29', wot.padStart(9,'0').substring(0,9), 9);
+  const wop = cleanAmt(getVal(row, 'written_off_principal'));
+  if (wop && wop !== '0') body += varField('30', wop.padStart(9,'0').substring(0,9), 9);
+  const settle = cleanAmt(getVal(row, 'settlement_amt'));
+  if (settle && settle !== '0') body += varField('31', settle.padStart(9,'0').substring(0,9), 9);
+  const pf = getVal(row, 'payment_frequency');
+  if (pf) body += varField('32', String(pf).padStart(2,'0').substring(0,2), 2);
+  const apa = cleanAmt(getVal(row, 'actual_payment_amt'));
+  if (apa && apa !== '0') body += varField('33', apa.padStart(9,'0').substring(0,9), 9);
+  const occ = getVal(row, 'occupation_code');
+  if (occ) body += varField('34', String(occ).padStart(2,'0').substring(0,2), 2);
+  const inc = cleanAmt(getVal(row, 'income'));
+  if (inc && inc !== '0') body += varField('35', inc.padStart(9,'0').substring(0,9), 9);
+  const ng = getVal(row, 'net_gross_indicator');
+  if (ng) body += varField('36', ng.substring(0,1), 1);
+  const ifreq = getVal(row, 'income_frequency');
+  if (ifreq) body += varField('37', ifreq.substring(0,1), 1);
+
+  return 'TL' + String(body.length).padStart(2,'0') + body;
+}
+
+function buildRecord(row, reportDate) {
+  let rec = '';
+  rec += buildPNSegment(row) + '\n';
+  rec += buildIDSegments(row);
+  rec += buildPTSegments(row);
+  rec += buildECSegment(row);
+  rec += buildPASegments(row);
+  rec += buildTLSegment(row, reportDate) + '\n';
+  rec += 'ES0201\n';
+  return rec;
+}
+
+function generateTUDF() {
+  const memberId = (document.getElementById('member-id').value || 'MEMBER00').toUpperCase().padEnd(8,' ').substring(0,8);
+  const pwd = (document.getElementById('report-pwd').value || 'PASSWORD').padEnd(30,' ').substring(0,30);
+  const reportDate = (document.getElementById('report-date').value || '15042026').replace(/\D/g,'').substring(0,8);
+  const bureauNames = { cibil: 'TransUnion CIBIL', crif: 'CRIF High Mark', equifax: 'Equifax India' };
+
+  let output = 'TUDF' + memberId + pwd + reportDate + '\n';
+  let recordCount = 0, errorCount = 0;
+
+  excelData.forEach((row, i) => {
+    try {
+      const rec = buildRecord(row, reportDate);
+      output += rec;
+      recordCount++;
+    } catch(e) { errorCount++; console.warn('Row ' + (i+2) + ' error:', e); }
+  });
+
+  output += 'TRLR' + String(recordCount).padStart(6,'0');
+  tudfOutput = output;
+
+  const lines = output.split('\n');
+  document.getElementById('output-preview').textContent = lines.slice(0, 40).join('\n') + (lines.length > 40 ? '\n\n... (' + (lines.length - 40) + ' more lines)' : '');
+
+  const kb = (new Blob([output]).size / 1024).toFixed(1);
+  document.getElementById('stats-bar-area').innerHTML =
+    `<div class="stats-bar">
+      <span><strong>${bureauNames[selectedBureau]}</strong></span>
+      <span class="stat-sep">·</span>
+      <span>${selectedType === 'consumer' ? 'Consumer' : 'Commercial'} UCRF</span>
+      <span class="stat-sep">·</span>
+      <span><strong>${recordCount}</strong> records generated</span>
+      ${errorCount ? '<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>' + errorCount + '</strong> rows skipped</span>' : ''}
+      <span class="stat-sep">·</span>
+      <span><strong>${kb} KB</strong></span>
+    </div>`;
+}
+
+function runValidation() {
+  const required = ['consumer_name','address1','pin_code1','account_no','account_type','ownership_indicator','date_opened','date_reported','high_credit','current_balance'];
+  let errors = [], warns = [];
+
+  required.forEach(f => { if (!mappings[f]) errors.push(`Required field "${CANONICAL_MAP[f]}" is not mapped.`); });
+
+  let validRows = 0, badRows = 0;
+  excelData.slice(0, 500).forEach((row, i) => {
+    let rowOk = true;
+    required.forEach(f => {
+      if (mappings[f] && !getVal(row, f)) {
+        rowOk = false;
+        if (errors.length < 6) errors.push(`Row ${i+2}: "${CANONICAL_MAP[f]}" is empty.`);
+      }
+    });
+    // Date format check
+    ['date_opened','date_reported','date_of_birth'].forEach(df => {
+      const v = getVal(row, df);
+      if (v && !/^\d{8}$/.test(String(v).replace(/\D/g,''))) {
+        if (warns.length < 3) warns.push(`Row ${i+2}: "${CANONICAL_MAP[df]}" value "${v}" is not DDMMYYYY — will attempt auto-reformat.`);
+      }
+    });
+    if (rowOk) validRows++; else badRows++;
+  });
+
+  let html = `<div class="stats-bar" style="margin-bottom:12px;">
+    <span><strong>${excelData.length}</strong> total records</span>
+    <span class="stat-sep">·</span>
+    <span style="color:var(--success)"><strong>${validRows}</strong> valid</span>
+    ${badRows ? '<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>' + badRows + '</strong> with issues</span>' : ''}
+    ${excelData.length > 500 ? '<span class="stat-sep">·</span><span style="color:var(--warn)">First 500 rows validated</span>' : ''}
+  </div>`;
+
+  if (errors.length) {
+    html += '<div class="errors-list">';
+    errors.slice(0,8).forEach(e => { html += `<div class="error-item">✕ ${e}</div>`; });
+    if (errors.length > 8) html += `<div class="error-item">... and ${errors.length - 8} more issues</div>`;
+    html += '</div>';
+  }
+  if (warns.length) {
+    html += '<div class="errors-list">';
+    warns.forEach(w => { html += `<div class="error-item warn-item">⚠ ${w}</div>`; });
+    html += '</div>';
+  }
+  if (!errors.length && !warns.length) {
+    html += `<div style="padding:14px 16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);color:var(--success);font-size:14px;">✓ All required fields mapped and validated. Ready to generate TUDF file.</div>`;
+  }
+  document.getElementById('validation-output').innerHTML = html;
+}
+
+// ─── UI Helpers ───────────────────────────────────────────────
 
 function selectBureau(b, el) {
   selectedBureau = b;
@@ -409,7 +749,7 @@ function goStep(n) {
   for (let i = 1; i <= 5; i++) {
     document.getElementById('panel-' + i).classList.toggle('hidden', i !== n);
     const st = document.getElementById('st-' + i);
-    st.classList.remove('active', 'done');
+    st.classList.remove('active','done');
     if (i === n) st.classList.add('active');
     else if (i < n) st.classList.add('done');
   }
@@ -421,29 +761,29 @@ function goStep(n) {
 
 function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
 function onDragLeave(e) { document.getElementById('drop-zone').classList.remove('dragover'); }
-function onDrop(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.remove('dragover');
-  const f = e.dataTransfer.files[0];
-  if (f) loadFile(f);
-}
+function onDrop(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }
 
 function loadFile(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
-    const wb = XLSX.read(e.target.result, { type: 'array' });
+    const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-    if (raw.length < 2) { alert('File appears empty or has no data rows.'); return; }
+    if (raw.length < 2) { alert('File appears empty.'); return; }
     headers = (raw[0] || []).map(h => String(h).trim());
     excelData = raw.slice(1).filter(r => r.some(c => c !== ''));
+    mappings = {};
+    const matched = autoMap();
 
-    const info = document.getElementById('file-loaded-info');
-    info.innerHTML = `<div class="file-loaded"><span>✓</span><span><span class="fname">${file.name}</span><br><span class="fstats">${excelData.length.toLocaleString()} data rows · ${headers.length} columns · Sheet: ${wb.SheetNames[0]}</span></span></div>`;
-    info.classList.remove('hidden');
+    document.getElementById('file-loaded-info').innerHTML =
+      `<div class="file-loaded"><span>✓</span><span>
+        <span class="fname">${file.name}</span><br>
+        <span style="color:var(--text-3);font-size:12px;">${excelData.length.toLocaleString()} rows · ${headers.length} columns · ${matched} fields auto-mapped</span>
+      </span></div>`;
+    document.getElementById('file-loaded-info').classList.remove('hidden');
 
-    buildPreview(raw.slice(0, 6));
+    buildPreview(raw.slice(0,6));
     document.getElementById('preview-section').classList.remove('hidden');
     document.getElementById('btn-step3').disabled = false;
   };
@@ -453,247 +793,66 @@ function loadFile(file) {
 function buildPreview(rows) {
   const t = document.getElementById('preview-table');
   const hdr = rows[0] || [];
-  let html = '<thead><tr>' + hdr.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-  rows.slice(1).forEach(r => { html += '<tr>' + hdr.map((_,i) => `<td>${r[i] !== undefined ? r[i] : ''}</td>`).join('') + '</tr>'; });
+  let html = '<thead><tr>' + hdr.slice(0,12).map(h => `<th>${h}</th>`).join('') + (hdr.length > 12 ? '<th>...</th>' : '') + '</tr></thead><tbody>';
+  rows.slice(1).forEach(r => {
+    html += '<tr>' + hdr.slice(0,12).map((_,i) => `<td>${r[i] !== undefined ? r[i] : ''}</td>`).join('') + (hdr.length > 12 ? '<td>…</td>' : '') + '</tr>';
+  });
   html += '</tbody>';
   t.innerHTML = html;
 }
 
 function buildMappingUI() {
-  const segs = getSegments().filter(s => s.id !== 'header');
+  const segs = SEGMENTS_CONSUMER;
   const tabs = document.getElementById('seg-tabs');
   tabs.innerHTML = '';
   segs.forEach((s, i) => {
     const b = document.createElement('button');
     b.className = 'sec-tab' + (i === 0 ? ' active' : '');
     b.textContent = s.label;
-    b.onclick = () => { currentSeg = s.id; document.querySelectorAll('.sec-tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); renderMappingTable(s); };
+    b.onclick = () => {
+      document.querySelectorAll('.sec-tab').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      renderMappingTable(s);
+    };
     tabs.appendChild(b);
   });
+
+  const totalFields = segs.reduce((a, s) => a + s.fields.length, 0);
+  const mapped = Object.keys(mappings).length;
+  document.getElementById('automapped-notice').innerHTML =
+    `<strong>${mapped} of ${totalFields} fields auto-mapped</strong> from your Excel headers. Review below and adjust any that need correction. Required fields are marked in red.`;
+
   renderMappingTable(segs[0]);
 }
 
 function renderMappingTable(seg) {
-  const body = document.getElementById('mapping-body');
   const opts = ['-- unmapped --', ...headers];
-  let html = `<table class="mapping-table"><thead><tr><th>TUDF field</th><th>Segment tag</th><th>Map to Excel column</th></tr></thead><tbody>`;
+  let html = `<table class="mapping-table"><thead><tr>
+    <th style="width:40%">TUDF field</th>
+    <th style="width:15%">Segment</th>
+    <th>Mapped to Excel column</th>
+  </tr></thead><tbody>`;
   seg.fields.forEach(f => {
     const saved = mappings[f.name] || '';
-    const reqClass = f.required ? 'req-required' : 'req-optional';
-    const reqLabel = f.required ? 'required' : 'optional';
-    const autoMatch = headers.find(h => h.toLowerCase().replace(/[\s_-]/g,'').includes(f.name.replace(/_/g,'')) || f.name.replace(/_/g,'').includes(h.toLowerCase().replace(/[\s_-]/g,'')));
-    const selectedVal = saved || autoMatch || '';
-    html += `<td><div class="field-label">${f.label}<span class="field-req ${reqClass}">${reqLabel}</span></div><div class="field-desc">${f.desc}</div></td>`;
-    html += `<td><code style="font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px;">${seg.id.toUpperCase()} • ${f.tag}</code></td>`;
-    html += `<td><select onchange="mappings['${f.name}']=this.value" data-field="${f.name}">`;
-    opts.forEach(o => { html += `<option value="${o === '-- unmapped --' ? '' : o}"${o === selectedVal || (selectedVal && o === selectedVal) ? ' selected' : ''}>${o}</option>`; });
-    html += `</select></td></tr>`;
-    if (selectedVal) mappings[f.name] = selectedVal;
+    const isAutoMapped = !!saved;
+    html += `<tr>
+      <td>
+        <div class="field-label">${f.label}
+          <span class="field-req ${f.required ? 'req-required' : 'req-optional'}">${f.required ? 'required' : 'optional'}</span>
+          ${isAutoMapped ? '<span class="auto-mapped-badge">auto</span>' : ''}
+        </div>
+        <div class="field-desc">${f.desc}</div>
+      </td>
+      <td><code style="font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px;">${seg.id.toUpperCase()}</code></td>
+      <td>
+        <select onchange="mappings['${f.name}']=this.value==='-- unmapped --'?'':this.value">
+          ${opts.map(o => `<option value="${o === '-- unmapped --' ? '' : o}"${o === saved || (saved && o === saved) ? ' selected' : ''}>${o}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`;
   });
   html += '</tbody></table>';
-  body.innerHTML = html;
-}
-
-function getVal(row, fieldName) {
-  const col = mappings[fieldName];
-  if (!col) return '';
-  const idx = headers.indexOf(col);
-  if (idx === -1) return '';
-  return String(row[idx] !== undefined && row[idx] !== null ? row[idx] : '').trim();
-}
-
-function runValidation() {
-  const segs = getSegments().filter(s => s.id !== 'header');
-  const allRequired = [];
-  segs.forEach(s => s.fields.filter(f => f.required).forEach(f => allRequired.push({ seg: s.id.toUpperCase(), ...f })));
-
-  let errors = [], warns = [];
-  allRequired.forEach(f => { if (!mappings[f.name]) errors.push(`${f.seg} segment: "${f.label}" is required but not mapped.`); });
-
-  let validRows = 0, invalidRows = 0;
-  excelData.forEach((row, i) => {
-    let rowOk = true;
-    allRequired.forEach(f => { if (mappings[f.name]) { const v = getVal(row, f.name); if (!v) { rowOk = false; if (errors.length < 8) errors.push(`Row ${i+2}: "${f.label}" (${f.seg}) is empty.`); } } });
-    if (rowOk) validRows++; else invalidRows++;
-  });
-
-  if (mappings['date_of_birth'] || mappings['date_opened'] || mappings['date_reported']) {
-    const sampleDate = excelData[0] ? getVal(excelData[0], 'date_opened') || getVal(excelData[0], 'date_reported') : '';
-    if (sampleDate && !/^\d{8}$/.test(String(sampleDate).replace(/\D/g,''))) {
-      warns.push(`Date fields should be in DDMMYYYY (8-digit) format. Detected value: "${sampleDate}" — converter will attempt auto-reformat.`);
-    }
-  }
-
-  const out = document.getElementById('validation-output');
-  let html = `<div class="stats-bar"><span><strong>${excelData.length}</strong> total records</span><span class="stat-sep">·</span><span style="color:var(--success)"><strong>${validRows}</strong> valid rows</span>`;
-  if (invalidRows) html += `<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>${invalidRows}</strong> rows with issues</span>`;
-  html += `</div>`;
-
-  if (errors.length) {
-    html += '<div class="errors-list">';
-    errors.slice(0,10).forEach(e => { html += `<div class="error-item">✕ ${e}</div>`; });
-    if (errors.length > 10) html += `<div class="error-item">... and ${errors.length - 10} more errors.</div>`;
-    html += '</div>';
-    document.getElementById('btn-generate').textContent = errors.length > allRequired.length ? 'Generate anyway (with errors) →' : 'Generate TUDF file →';
-  }
-  if (warns.length) {
-    html += '<div class="errors-list">';
-    warns.forEach(w => { html += `<div class="error-item warn-item">⚠ ${w}</div>`; });
-    html += '</div>';
-  }
-  if (!errors.length && !warns.length) {
-    html += `<div style="padding:16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);color:var(--success);font-size:14px;">✓ All required fields mapped and validated. Ready to generate.</div>`;
-  }
-  out.innerHTML = html;
-}
-
-function padFixed(val, len, padChar) { return String(val || '').padEnd(len, padChar || ' ').substring(0, len); }
-function formatDate(val) {
-  if (!val) return '';
-  const s = String(val).replace(/\D/g, '');
-  if (s.length === 8) return s;
-  if (s.length === 5) {
-    const d = new Date(Math.round((parseInt(s) - 25569) * 86400 * 1000));
-    const dd = String(d.getDate()).padStart(2,'0'), mm = String(d.getMonth()+1).padStart(2,'0'), yyyy = d.getFullYear();
-    return `${dd}${mm}${yyyy}`;
-  }
-  return s.substring(0,8).padEnd(8,'0');
-}
-function varField(tag, val, maxLen) {
-  if (!val) return '';
-  const v = String(val).substring(0, maxLen || 200);
-  const tagStr = String(tag).padStart(2,'0');
-  const lenStr = String(v.length).padStart(2,'0');
-  return tagStr + lenStr + v;
-}
-
-function buildTUDFRecord(row) {
-  const memberId = document.getElementById('member-id').value || 'MEMBER00';
-  const pwd = document.getElementById('report-pwd').value || 'PASSWORD';
-  const reportDate = document.getElementById('report-date').value || '15042026';
-  let rec = '';
-
-  if (selectedType === 'consumer') {
-    let pn = 'PN';
-    pn += varField('01', getVal(row, 'consumer_name_1').toUpperCase().substring(0,26), 26);
-    if (getVal(row, 'date_of_birth')) pn += varField('07', formatDate(getVal(row, 'date_of_birth')), 8);
-    if (getVal(row, 'gender')) pn += varField('08', getVal(row, 'gender'), 1);
-    const pnLen = String(pn.length - 2).padStart(2,'0');
-    rec += pn.substring(0,2) + pnLen + pn.substring(2) + '\n';
-
-    const idType = getVal(row, 'id_type'), idNum = getVal(row, 'id_number');
-    if (idType && idNum) {
-      let id = 'ID' + varField('01', idType, 2) + varField('02', idNum.toUpperCase(), 30);
-      const idLen = String(id.length - 2).padStart(2,'0');
-      rec += id.substring(0,2) + idLen + id.substring(2) + '\n';
-    }
-
-    const tel = getVal(row, 'tel_number');
-    if (tel) {
-      let pt = 'PT' + varField('01', String(tel).replace(/\D/g,'').substring(0,10), 10);
-      if (getVal(row, 'tel_type')) pt += varField('03', getVal(row,'tel_type'), 2);
-      const ptLen = String(pt.length - 2).padStart(2,'0');
-      rec += pt.substring(0,2) + ptLen + pt.substring(2) + '\n';
-    }
-
-    let pa = 'PA';
-    pa += varField('01', getVal(row, 'addr_line1').toUpperCase().substring(0,40), 40);
-    if (getVal(row,'addr_line2')) pa += varField('02', getVal(row,'addr_line2').toUpperCase().substring(0,40), 40);
-    if (getVal(row,'addr_line3')) pa += varField('03', getVal(row,'addr_line3').toUpperCase().substring(0,40), 40);
-    if (getVal(row,'addr_line4')) pa += varField('04', getVal(row,'addr_line4').toUpperCase().substring(0,40), 40);
-    pa += varField('05', getVal(row,'addr_line5') || 'IN', 2);
-    pa += varField('06', String(getVal(row,'pincode')).replace(/\D/g,'').substring(0,6), 6);
-    if (getVal(row,'addr_category')) pa += varField('07', getVal(row,'addr_category'), 2);
-    const paLen = String(pa.length - 2).padStart(2,'0');
-    rec += pa.substring(0,2) + paLen + pa.substring(2) + '\n';
-
-    let tl = 'TL';
-    tl += varField('01', getVal(row,'acct_number').toUpperCase().substring(0,25), 25);
-    tl += varField('02', getVal(row,'portfolio_type').toUpperCase().substring(0,2), 2);
-    tl += varField('03', getVal(row,'acct_type') || '10', 2);
-    tl += varField('04', getVal(row,'ownership_indicator') || '1', 1);
-    tl += varField('05', formatDate(getVal(row,'date_opened')), 8);
-    if (getVal(row,'date_last_payment')) tl += varField('06', formatDate(getVal(row,'date_last_payment')), 8);
-    if (getVal(row,'date_closed')) tl += varField('07', formatDate(getVal(row,'date_closed')), 8);
-    tl += varField('08', formatDate(getVal(row,'date_reported') || reportDate), 8);
-    tl += varField('09', String(getVal(row,'high_credit')).replace(/[^0-9]/g,''), 9);
-    tl += varField('10', String(getVal(row,'current_balance')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'amount_overdue')) tl += varField('11', String(getVal(row,'amount_overdue')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'dpd')) tl += varField('12', String(getVal(row,'dpd')).padStart(3,'0').substring(0,3), 3);
-    if (getVal(row,'asset_classification')) tl += varField('13', getVal(row,'asset_classification'), 2);
-    if (getVal(row,'payment_rating')) tl += varField('14', getVal(row,'payment_rating'), 1);
-    if (getVal(row,'credit_limit')) tl += varField('15', String(getVal(row,'credit_limit')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'emi_amount')) tl += varField('17', String(getVal(row,'emi_amount')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'written_off_amt')) tl += varField('18', String(getVal(row,'written_off_amt')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'tenure')) tl += varField('20', String(getVal(row,'tenure')).replace(/[^0-9]/g,'').substring(0,3), 3);
-    const tlLen = String(tl.length - 2).padStart(2,'0');
-    rec += tl.substring(0,2) + tlLen + tl.substring(2) + '\n';
-
-  } else {
-    let cn = 'CN';
-    cn += varField('01', getVal(row,'company_name').toUpperCase().substring(0,150), 150);
-    if (getVal(row,'short_name')) cn += varField('02', getVal(row,'short_name').toUpperCase().substring(0,30), 30);
-    if (getVal(row,'category')) cn += varField('03', getVal(row,'category'), 2);
-    const cnLen = String(cn.length - 2).padStart(2,'0');
-    rec += cn.substring(0,2) + cnLen + cn.substring(2) + '\n';
-
-    const idType = getVal(row,'id_type'), idNum = getVal(row,'id_number');
-    if (idType && idNum) {
-      let id = 'ID' + varField('01', idType, 2) + varField('02', idNum.toUpperCase(), 30);
-      const idLen = String(id.length - 2).padStart(2,'0');
-      rec += id.substring(0,2) + idLen + id.substring(2) + '\n';
-    }
-
-    let pa = 'PA' + varField('01', getVal(row,'addr_line1').toUpperCase().substring(0,40), 40);
-    if (getVal(row,'addr_line3')) pa += varField('03', getVal(row,'addr_line3').toUpperCase().substring(0,40), 40);
-    if (getVal(row,'addr_line4')) pa += varField('04', getVal(row,'addr_line4').toUpperCase().substring(0,40), 40);
-    pa += varField('05', 'IN', 2);
-    pa += varField('06', String(getVal(row,'pincode')).replace(/\D/g,'').substring(0,6), 6);
-    const paLen = String(pa.length - 2).padStart(2,'0');
-    rec += pa.substring(0,2) + paLen + pa.substring(2) + '\n';
-
-    let tl = 'TL';
-    tl += varField('01', getVal(row,'acct_number').toUpperCase().substring(0,25), 25);
-    tl += varField('02', getVal(row,'portfolio_type').toUpperCase().substring(0,2), 2);
-    tl += varField('04', getVal(row,'ownership_indicator') || '1', 1);
-    tl += varField('05', formatDate(getVal(row,'date_opened')), 8);
-    const reportDate2 = document.getElementById('report-date').value || '15042026';
-    tl += varField('08', formatDate(getVal(row,'date_reported') || reportDate2), 8);
-    tl += varField('09', String(getVal(row,'high_credit')).replace(/[^0-9]/g,''), 9);
-    tl += varField('10', String(getVal(row,'current_balance')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'amount_overdue')) tl += varField('11', String(getVal(row,'amount_overdue')).replace(/[^0-9]/g,''), 9);
-    if (getVal(row,'dpd')) tl += varField('12', String(getVal(row,'dpd')).padStart(3,'0').substring(0,3), 3);
-    if (getVal(row,'asset_classification')) tl += varField('13', getVal(row,'asset_classification'), 2);
-    const tlLen = String(tl.length - 2).padStart(2,'0');
-    rec += tl.substring(0,2) + tlLen + tl.substring(2) + '\n';
-  }
-
-  rec += 'ES0201\n';
-  return rec;
-}
-
-function generateTUDF() {
-  const memberId = (document.getElementById('member-id').value || 'MEMBER00').padEnd(8,' ').substring(0,8).toUpperCase();
-  const pwd = (document.getElementById('report-pwd').value || 'PASSWORD').padEnd(30,' ').substring(0,30);
-  const reportDate = (document.getElementById('report-date').value || '15042026').replace(/\D/g,'').substring(0,8);
-  const bureauNames = { cibil: 'TransUnion CIBIL', crif: 'CRIF High Mark', equifax: 'Equifax India' };
-
-  let output = '';
-  output += 'TUDF' + memberId + pwd.padEnd(30,' ') + reportDate + '\n';
-
-  let recordCount = 0;
-  excelData.forEach(row => {
-    try { output += buildTUDFRecord(row); recordCount++; } catch(e) {}
-  });
-
-  output += `TRLR${String(recordCount).padStart(6,'0')}`;
-  tudfOutput = output;
-
-  const lines = output.split('\n');
-  document.getElementById('output-preview').textContent = lines.slice(0, 30).join('\n') + (lines.length > 30 ? '\n...' : '');
-
-  const statsEl = document.getElementById('stats-bar-area');
-  statsEl.innerHTML = `<div class="stats-bar"><span><strong>${bureauNames[selectedBureau]}</strong></span><span class="stat-sep">·</span><span>${selectedType === 'consumer' ? 'Consumer' : 'Commercial'} format</span><span class="stat-sep">·</span><span><strong>${recordCount}</strong> records</span><span class="stat-sep">·</span><span><strong>${(new Blob([output]).size / 1024).toFixed(1)} KB</strong></span></div>`;
+  document.getElementById('mapping-body').innerHTML = html;
 }
 
 function downloadTUDF() {
@@ -701,20 +860,20 @@ function downloadTUDF() {
   const dd = String(today.getDate()).padStart(2,'0');
   const mm = String(today.getMonth()+1).padStart(2,'0');
   const yyyy = today.getFullYear();
-  const bureauCode = { cibil: 'CIBIL', crif: 'CRIF', equifax: 'EFX' }[selectedBureau];
-  const typeCode = selectedType === 'consumer' ? 'CON' : 'COM';
-  const filename = `TUDF_${bureauCode}_${typeCode}_${dd}${mm}${yyyy}.txt`;
+  const bCode = { cibil:'CIBIL', crif:'CRIF', equifax:'EFX' }[selectedBureau];
+  const tCode = selectedType === 'consumer' ? 'CON' : 'COM';
+  const filename = `TUDF_${bCode}_${tCode}_${dd}${mm}${yyyy}.txt`;
   const blob = new Blob([tudfOutput], { type: 'text/plain' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
 }
 
 function downloadSample() {
-  const consumerHeaders = ['borrower_name','date_of_birth','gender','pan_number','mobile','address_line1','city','state','pincode','account_number','portfolio_type','account_type','ownership_indicator','date_opened','date_reported','sanctioned_amount','current_balance','amount_overdue','dpd','asset_classification','payment_rating','emi_amount','tenure'];
-  const sampleRow = ['RAMESH KUMAR SHARMA','01011985','2','ABCPK1234Q','9876543210','123 MG ROAD APARTMENT 4B','MUMBAI','MAHARASHTRA','400001','LAP000123456','HL','10','1','01062022','15042026','5000000','4200000','0','000','01','0','45000','180'];
+  const hdrs = Object.values(CANONICAL_MAP);
+  const sample = ['RAMESH KUMAR SHARMA','01011985','2','ABCPK1234Q','','','','','','','','','','','','9876543210','','','','','','test@example.com','','123 MG ROAD APARTMENTS','36','400001','02','01','','','','','','MBR001','AC','LAP000001','13','1','01062022','','','15042026','5000000','4200000','0','000','','','','','','','01','','','','','','','','','','','','','','','01','1000000','1','1'];
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([consumerHeaders, sampleRow]);
+  const ws = XLSX.utils.aoa_to_sheet([hdrs, sample]);
   XLSX.utils.book_append_sheet(wb, ws, 'BorrowerData');
-  XLSX.writeFile(wb, 'TUDF_Sample_Template.xlsx');
+  XLSX.writeFile(wb, 'CIBIL_Submission_Template.xlsx');
 }
 
 function resetAll() {
