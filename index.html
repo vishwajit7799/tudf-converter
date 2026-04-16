@@ -688,52 +688,77 @@ function generateTUDF() {
 
 function runValidation() {
   const required = ['consumer_name','address1','pin_code1','account_no','account_type','ownership_indicator','date_opened','date_reported','high_credit','current_balance'];
-  let errors = [], warns = [];
+  const out = document.getElementById('validation-output');
 
-  required.forEach(f => { if (!mappings[f]) errors.push(`Required field "${CANONICAL_MAP[f]}" is not mapped.`); });
+  // Check mapping completeness instantly before processing rows
+  let mappingErrors = [];
+  required.forEach(f => { if (!mappings[f]) mappingErrors.push('Required field "' + CANONICAL_MAP[f] + '" is not mapped.'); });
+  if (mappingErrors.length) {
+    let html = '<div class="stats-bar" style="margin-bottom:12px;"><span><strong>' + excelData.length.toLocaleString() + '</strong> total records</span><span class="stat-sep">·</span><span style="color:var(--danger)">Mapping incomplete — fix before generating</span></div>';
+    html += '<div class="errors-list">' + mappingErrors.map(e => '<div class="error-item">✕ ' + e + '</div>').join('') + '</div>';
+    out.innerHTML = html;
+    return;
+  }
 
-  let validRows = 0, badRows = 0;
-  excelData.slice(0, 500).forEach((row, i) => {
-    let rowOk = true;
-    required.forEach(f => {
-      if (mappings[f] && !getVal(row, f)) {
-        rowOk = false;
-        if (errors.length < 6) errors.push(`Row ${i+2}: "${CANONICAL_MAP[f]}" is empty.`);
-      }
-    });
-    // Date format check
-    ['date_opened','date_reported','date_of_birth'].forEach(df => {
-      const v = getVal(row, df);
-      if (v && !/^\d{8}$/.test(String(v).replace(/\D/g,''))) {
-        if (warns.length < 3) warns.push(`Row ${i+2}: "${CANONICAL_MAP[df]}" value "${v}" is not DDMMYYYY — will attempt auto-reformat.`);
-      }
-    });
-    if (rowOk) validRows++; else badRows++;
-  });
+  const total = excelData.length;
+  out.innerHTML = '<div class="stats-bar" style="margin-bottom:12px;"><span>Validating <strong>' + total.toLocaleString() + '</strong> rows...</span><span class="stat-sep">·</span><span id="val-progress">0%</span></div><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:12px;"><div id="val-bar" style="height:100%;background:var(--accent);width:0%;transition:width 0.2s;border-radius:2px;"></div></div>';
 
-  let html = `<div class="stats-bar" style="margin-bottom:12px;">
-    <span><strong>${excelData.length}</strong> total records</span>
-    <span class="stat-sep">·</span>
-    <span style="color:var(--success)"><strong>${validRows}</strong> valid</span>
-    ${badRows ? '<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>' + badRows + '</strong> with issues</span>' : ''}
-    ${excelData.length > 500 ? '<span class="stat-sep">·</span><span style="color:var(--warn)">First 500 rows validated</span>' : ''}
-  </div>`;
+  const CHUNK = 2000;
+  let validRows = 0, badRows = 0, rowErrors = [], rowWarns = [], chunk = 0;
 
+  function processChunk() {
+    const start = chunk * CHUNK;
+    const end = Math.min(start + CHUNK, total);
+    for (let i = start; i < end; i++) {
+      const row = excelData[i];
+      let rowOk = true;
+      required.forEach(function(f) {
+        if (!getVal(row, f)) {
+          rowOk = false;
+          if (rowErrors.length < 8) rowErrors.push('Row ' + (i+2) + ': "' + CANONICAL_MAP[f] + '" is empty.');
+        }
+      });
+      ['date_opened','date_reported','date_of_birth'].forEach(function(df) {
+        const v = getVal(row, df);
+        if (v && !/^\d{8}$/.test(String(v).replace(/\D/g,''))) {
+          if (rowWarns.length < 3) rowWarns.push('Row ' + (i+2) + ': "' + CANONICAL_MAP[df] + '" value "' + v + '" is not DDMMYYYY — will auto-reformat.');
+        }
+      });
+      if (rowOk) validRows++; else badRows++;
+    }
+    chunk++;
+    const pct = Math.round((end / total) * 100);
+    const progEl = document.getElementById('val-progress');
+    const barEl = document.getElementById('val-bar');
+    if (progEl) progEl.textContent = pct + '%';
+    if (barEl) barEl.style.width = pct + '%';
+    if (end < total) {
+      setTimeout(processChunk, 0);
+    } else {
+      renderValidationResult(total, validRows, badRows, rowErrors, rowWarns);
+    }
+  }
+  setTimeout(processChunk, 0);
+}
+
+function renderValidationResult(total, validRows, badRows, errors, warns) {
+  const out = document.getElementById('validation-output');
+  let html = '<div class="stats-bar" style="margin-bottom:12px;"><span><strong>' + total.toLocaleString() + '</strong> total records</span><span class="stat-sep">·</span><span style="color:var(--success)"><strong>' + validRows.toLocaleString() + '</strong> valid</span>' + (badRows ? '<span class="stat-sep">·</span><span style="color:var(--danger)"><strong>' + badRows.toLocaleString() + '</strong> with issues</span>' : '') + '</div>';
   if (errors.length) {
     html += '<div class="errors-list">';
-    errors.slice(0,8).forEach(e => { html += `<div class="error-item">✕ ${e}</div>`; });
-    if (errors.length > 8) html += `<div class="error-item">... and ${errors.length - 8} more issues</div>`;
+    errors.slice(0,8).forEach(function(e) { html += '<div class="error-item">✕ ' + e + '</div>'; });
+    if (errors.length > 8) html += '<div class="error-item">... and ' + (errors.length - 8) + ' more issues</div>';
     html += '</div>';
   }
   if (warns.length) {
     html += '<div class="errors-list">';
-    warns.forEach(w => { html += `<div class="error-item warn-item">⚠ ${w}</div>`; });
+    warns.forEach(function(w) { html += '<div class="error-item warn-item">⚠ ' + w + '</div>'; });
     html += '</div>';
   }
   if (!errors.length && !warns.length) {
-    html += `<div style="padding:14px 16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);color:var(--success);font-size:14px;">✓ All required fields mapped and validated. Ready to generate TUDF file.</div>`;
+    html += '<div style="padding:14px 16px;background:var(--success-bg);border:1px solid var(--success-border);border-radius:var(--radius);color:var(--success);font-size:14px;">✓ All ' + total.toLocaleString() + ' records validated successfully. Ready to generate TUDF file.</div>';
   }
-  document.getElementById('validation-output').innerHTML = html;
+  out.innerHTML = html;
 }
 
 // ─── UI Helpers ───────────────────────────────────────────────
