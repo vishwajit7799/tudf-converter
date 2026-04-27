@@ -40,7 +40,7 @@
   .step-arrow { color: var(--border-strong); font-size: 12px; padding: 0 4px; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
   .card-title { font-size: 13px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
-  .bureau-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .bureau-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .bureau-btn { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: all 0.15s; }
   .bureau-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
   .bureau-btn.selected { border-color: var(--accent); background: var(--accent-light); }
@@ -118,6 +118,7 @@
     <span class="badge">TransUnion CIBIL</span>
     <span class="badge">CRIF High Mark</span>
     <span class="badge">Equifax</span>
+    <span class="badge">Experian</span>
   </div>
 </div>
 
@@ -153,6 +154,11 @@
         <button class="bureau-btn" onclick="selectBureau('equifax',this)">
           <span class="bcheck"></span>
           <div class="bname">Equifax</div>
+          <div class="bcode">UCRF v3.73 · Consumer</div>
+        </button>
+        <button class="bureau-btn" onclick="selectBureau('experian',this)">
+          <span class="bcheck"></span>
+          <div class="bname">Experian</div>
           <div class="bcode">UCRF v3.73 · Consumer</div>
         </button>
       </div>
@@ -650,12 +656,29 @@ function buildRecord(row, reportDate) {
 }
 
 function generateTUDF() {
-  const memberId = (document.getElementById('member-id').value || 'MEMBER00').toUpperCase().padEnd(8,' ').substring(0,8);
   const pwd = (document.getElementById('report-pwd').value || 'PASSWORD').padEnd(30,' ').substring(0,30);
   const reportDate = (document.getElementById('report-date').value || '15042026').replace(/\D/g,'').substring(0,8);
-  const bureauNames = { cibil: 'TransUnion CIBIL', crif: 'CRIF High Mark', equifax: 'Equifax India' };
+  const bureauNames = { cibil: 'TransUnion CIBIL', crif: 'CRIF High Mark', equifax: 'Equifax India', experian: 'Experian India' };
 
-  let output = 'TUDF' + memberId + pwd + reportDate + '\n';
+  // UCRF v3.73 Header — fixed 146 chars exactly
+  // Pos 1-4   : Segment ID       "TUDF"         4 chars
+  // Pos 5-34  : Member Code      left-justified 30 chars space-padded
+  // Pos 35-44 : Member Short Name                10 chars space-padded
+  // Pos 45-46 : Cycle ID         "01"            2 chars
+  // Pos 47-54 : Date Reported    DDMMYYYY        8 chars
+  // Pos 55-84 : Member Password  left-justified 30 chars space-padded
+  // Pos 85-88 : Version Number   "3730"          4 chars
+  // Pos 89-90 : Enquiry Purpose  "00"            2 chars (00=submission)
+  // Pos 91-146: Filler           spaces         56 chars
+  const memberCodeFull  = (document.getElementById('member-id').value || 'MEMBER00').toUpperCase().padEnd(30,' ').substring(0,30);
+  const memberShortName = (document.getElementById('member-id').value || 'MEMBER00').toUpperCase().substring(0,10).padEnd(10,' ');
+  const cycleId         = '01';
+  const versionNumber   = '3730';
+  const enquiryPurpose  = '00';
+  const filler          = ' '.repeat(56);
+  const headerLine = 'TUDF' + memberCodeFull + memberShortName + cycleId + reportDate + pwd + versionNumber + enquiryPurpose + filler;
+  if (headerLine.length !== 146) console.warn('Header length mismatch:', headerLine.length, '(expected 146)');
+  let output = headerLine + '\n';
   let recordCount = 0, errorCount = 0;
 
   excelData.forEach((row, i) => {
@@ -889,7 +912,7 @@ function downloadTUDF() {
   const dd = String(today.getDate()).padStart(2,'0');
   const mm = String(today.getMonth()+1).padStart(2,'0');
   const yyyy = today.getFullYear();
-  const bCode = { cibil:'CIBIL', crif:'CRIF', equifax:'EFX' }[selectedBureau];
+  const bCode = { cibil:'CIBIL', crif:'CRIF', equifax:'EFX', experian:'EXP' }[selectedBureau];
   const tCode = selectedType === 'consumer' ? 'CON' : 'COM';
   const filename = `TUDF_${bCode}_${tCode}_${dd}${mm}${yyyy}.txt`;
   const blob = new Blob([tudfOutput], { type: 'text/plain' });
